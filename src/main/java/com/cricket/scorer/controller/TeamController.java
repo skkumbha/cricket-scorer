@@ -56,12 +56,6 @@ public class TeamController {
         }
     }
 
-    @GetMapping("/country/{country}")
-    public ResponseEntity<List<Team>> getTeamsByCountry(@PathVariable String country) {
-        List<Team> teams = teamService.getTeamsByCountry(country);
-        return ResponseEntity.ok(teams);
-    }
-
     @GetMapping("/search")
     public ResponseEntity<List<Team>> searchTeamsByName(@RequestParam String name) {
         List<Team> teams = teamService.searchTeamsByName(name);

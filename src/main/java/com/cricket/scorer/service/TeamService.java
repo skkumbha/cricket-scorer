@@ -42,10 +42,6 @@ public class TeamService {
         teamRepository.delete(team);
     }
 
-    public List<Team> getTeamsByCountry(String country) {
-        return teamRepository.findByCountry(country);
-    }
-
     public List<Team> searchTeamsByName(String name) {
         return teamRepository.findByNameContainingIgnoreCase(name);
     }

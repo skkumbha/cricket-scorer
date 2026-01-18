@@ -67,10 +67,4 @@ public class MatchController {
         List<Match> matches = matchService.getMatchesByTeam(teamId);
         return ResponseEntity.ok(matches);
     }
-
-    @GetMapping("/search")
-    public ResponseEntity<List<Match>> searchMatchesByVenue(@RequestParam String venue) {
-        List<Match> matches = matchService.searchMatchesByVenue(venue);
-        return ResponseEntity.ok(matches);
-    }
 }

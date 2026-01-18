@@ -17,12 +17,6 @@ public class PlayerController {
     @Autowired
     private PlayerService playerService;
 
-    @GetMapping
-    public ResponseEntity<List<Player>> getAllPlayers() {
-        List<Player> players = playerService.getAllPlayers();
-        return ResponseEntity.ok(players);
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<Player> getPlayerById(@PathVariable Long id) {
         return playerService.getPlayerById(id)

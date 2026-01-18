@@ -54,8 +54,4 @@ public class MatchService {
     public List<Match> getMatchesByTeam(Long teamId) {
         return matchRepository.findByTeam1IdOrTeam2Id(teamId, teamId);
     }
-
-    public List<Match> searchMatchesByVenue(String venue) {
-        return matchRepository.findByVenueContainingIgnoreCase(venue);
-    }
 }

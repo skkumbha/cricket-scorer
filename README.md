@@ -53,7 +53,6 @@ Access the H2 console at: `http://localhost:8080/h2-console`
 - `POST /api/teams` - Create a new team
 - `PUT /api/teams/{id}` - Update a team
 - `DELETE /api/teams/{id}` - Delete a team
-- `GET /api/teams/country/{country}` - Get teams by country
 - `GET /api/teams/search?name={name}` - Search teams by name
 
 **Example Request:**
@@ -65,7 +64,6 @@ curl -X POST http://localhost:8080/api/teams \
 
 ### Players
 
-- `GET /api/players` - Get all players
 - `GET /api/players/{id}` - Get player by ID
 - `POST /api/players` - Create a new player
 - `PUT /api/players/{id}` - Update a player
@@ -90,7 +88,6 @@ curl -X POST http://localhost:8080/api/players \
 - `DELETE /api/matches/{id}` - Delete a match
 - `GET /api/matches/status/{status}` - Get matches by status
 - `GET /api/matches/team/{teamId}` - Get matches by team
-- `GET /api/matches/search?venue={venue}` - Search matches by venue
 
 **Example Request:**
 ```bash

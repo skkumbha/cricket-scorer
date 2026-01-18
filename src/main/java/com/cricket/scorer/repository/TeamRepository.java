@@ -8,6 +8,5 @@ import java.util.List;
 
 @Repository
 public interface TeamRepository extends JpaRepository<Team, Long> {
-    List<Team> findByCountry(String country);
     List<Team> findByNameContainingIgnoreCase(String name);
 }
