@@ -2,33 +2,37 @@ package com.cricket.scorer.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "teams")
-public class Team {
+@Table(name = "tournaments")
+public class Tournament {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Team name is required")
+    @NotBlank(message = "Tournament name is required")
     @Column(nullable = false)
     private String name;
 
     @Column(name = "short_name", length = 50)
     private String shortName;
 
-    @Column(name = "logo_url", length = 500)
-    private String logoUrl;
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<TeamPlayer> teamPlayers = new HashSet<>();
+    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Fixture> fixtures = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
@@ -36,12 +40,14 @@ public class Team {
     }
 
     // Constructors
-    public Team() {
+    public Tournament() {
     }
 
-    public Team(String name, String shortName) {
+    public Tournament(String name, String shortName, LocalDate startDate, LocalDate endDate) {
         this.name = name;
         this.shortName = shortName;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     // Getters and Setters
@@ -69,12 +75,20 @@ public class Team {
         this.shortName = shortName;
     }
 
-    public String getLogoUrl() {
-        return logoUrl;
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public void setLogoUrl(String logoUrl) {
-        this.logoUrl = logoUrl;
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -85,11 +99,11 @@ public class Team {
         this.createdAt = createdAt;
     }
 
-    public Set<TeamPlayer> getTeamPlayers() {
-        return teamPlayers;
+    public Set<Fixture> getFixtures() {
+        return fixtures;
     }
 
-    public void setTeamPlayers(Set<TeamPlayer> teamPlayers) {
-        this.teamPlayers = teamPlayers;
+    public void setFixtures(Set<Fixture> fixtures) {
+        this.fixtures = fixtures;
     }
 }

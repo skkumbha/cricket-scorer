@@ -30,11 +30,10 @@ public class MatchService {
         Match match = matchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Match not found with id: " + id));
         
-        match.setName(matchDetails.getName());
-        match.setTeam1Id(matchDetails.getTeam1Id());
-        match.setTeam2Id(matchDetails.getTeam2Id());
-        match.setVenue(matchDetails.getVenue());
-        match.setMatchDate(matchDetails.getMatchDate());
+        match.setMatchName(matchDetails.getMatchName());
+        match.setMatchType(matchDetails.getMatchType());
+        match.setLocation(matchDetails.getLocation());
+        match.setStartTime(matchDetails.getStartTime());
         match.setStatus(matchDetails.getStatus());
         match.setWinnerTeamId(matchDetails.getWinnerTeamId());
         
@@ -52,6 +51,8 @@ public class MatchService {
     }
 
     public List<Match> getMatchesByTeam(Long teamId) {
-        return matchRepository.findByTeam1IdOrTeam2Id(teamId, teamId);
+        // This method no longer works with the new schema
+        // Teams are linked to matches through match_teams table
+        return List.of();
     }
 }

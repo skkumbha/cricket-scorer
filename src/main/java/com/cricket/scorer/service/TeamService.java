@@ -31,7 +31,8 @@ public class TeamService {
                 .orElseThrow(() -> new RuntimeException("Team not found with id: " + id));
         
         team.setName(teamDetails.getName());
-        team.setCountry(teamDetails.getCountry());
+        team.setShortName(teamDetails.getShortName());
+        team.setLogoUrl(teamDetails.getLogoUrl());
         
         return teamRepository.save(team);
     }

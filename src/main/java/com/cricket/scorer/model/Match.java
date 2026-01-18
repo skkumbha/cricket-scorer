@@ -2,8 +2,9 @@ package com.cricket.scorer.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "matches")
@@ -14,43 +15,60 @@ public class Match {
     private Long id;
 
     @NotBlank(message = "Match name is required")
-    @Column(nullable = false)
-    private String name;
+    @Column(name = "match_name", nullable = false)
+    private String matchName;
 
-    @NotNull(message = "Team 1 ID is required")
-    @Column(name = "team1_id", nullable = false)
-    private Long team1Id;
+    @Column(name = "match_type", length = 50)
+    private String matchType;
 
-    @NotNull(message = "Team 2 ID is required")
-    @Column(name = "team2_id", nullable = false)
-    private Long team2Id;
+    @Column(length = 255)
+    private String location;
 
-    @NotBlank(message = "Venue is required")
-    @Column(nullable = false)
-    private String venue;
+    @Column(name = "start_time")
+    private LocalDateTime startTime;
 
-    @Column(name = "match_date")
-    private LocalDateTime matchDate;
+    @Column(length = 50)
+    private String status = "SCHEDULED";
 
-    @NotBlank(message = "Status is required")
-    @Column(nullable = false)
-    private String status; // Scheduled, In Progress, Completed, Cancelled
+    @Column(name = "tournament_id")
+    private Long tournamentId;
+
+    @Column(name = "toss_winner_team_id")
+    private Long tossWinnerTeamId;
+
+    @Column(name = "toss_decision", length = 20)
+    private String tossDecision;
 
     @Column(name = "winner_team_id")
     private Long winnerTeamId;
 
-    @Column(name = "created_at")
+    @Column(name = "result_type", length = 50)
+    private String resultType;
+
+    @Column(name = "result_margin", length = 100)
+    private String resultMargin;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<MatchTeam> matchTeams = new HashSet<>();
+
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<MatchPlayer> matchPlayers = new HashSet<>();
+
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Innings> innings = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
         if (status == null) {
-            status = "Scheduled";
+            status = "SCHEDULED";
         }
     }
 
@@ -63,13 +81,12 @@ public class Match {
     public Match() {
     }
 
-    public Match(String name, Long team1Id, Long team2Id, String venue, LocalDateTime matchDate) {
-        this.name = name;
-        this.team1Id = team1Id;
-        this.team2Id = team2Id;
-        this.venue = venue;
-        this.matchDate = matchDate;
-        this.status = "Scheduled";
+    public Match(String matchName, String matchType, String location, LocalDateTime startTime) {
+        this.matchName = matchName;
+        this.matchType = matchType;
+        this.location = location;
+        this.startTime = startTime;
+        this.status = "SCHEDULED";
     }
 
     // Getters and Setters
@@ -81,44 +98,36 @@ public class Match {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getMatchName() {
+        return matchName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMatchName(String matchName) {
+        this.matchName = matchName;
     }
 
-    public Long getTeam1Id() {
-        return team1Id;
+    public String getMatchType() {
+        return matchType;
     }
 
-    public void setTeam1Id(Long team1Id) {
-        this.team1Id = team1Id;
+    public void setMatchType(String matchType) {
+        this.matchType = matchType;
     }
 
-    public Long getTeam2Id() {
-        return team2Id;
+    public String getLocation() {
+        return location;
     }
 
-    public void setTeam2Id(Long team2Id) {
-        this.team2Id = team2Id;
+    public void setLocation(String location) {
+        this.location = location;
     }
 
-    public String getVenue() {
-        return venue;
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
-    public void setVenue(String venue) {
-        this.venue = venue;
-    }
-
-    public LocalDateTime getMatchDate() {
-        return matchDate;
-    }
-
-    public void setMatchDate(LocalDateTime matchDate) {
-        this.matchDate = matchDate;
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 
     public String getStatus() {
@@ -129,12 +138,52 @@ public class Match {
         this.status = status;
     }
 
+    public Long getTournamentId() {
+        return tournamentId;
+    }
+
+    public void setTournamentId(Long tournamentId) {
+        this.tournamentId = tournamentId;
+    }
+
+    public Long getTossWinnerTeamId() {
+        return tossWinnerTeamId;
+    }
+
+    public void setTossWinnerTeamId(Long tossWinnerTeamId) {
+        this.tossWinnerTeamId = tossWinnerTeamId;
+    }
+
+    public String getTossDecision() {
+        return tossDecision;
+    }
+
+    public void setTossDecision(String tossDecision) {
+        this.tossDecision = tossDecision;
+    }
+
     public Long getWinnerTeamId() {
         return winnerTeamId;
     }
 
     public void setWinnerTeamId(Long winnerTeamId) {
         this.winnerTeamId = winnerTeamId;
+    }
+
+    public String getResultType() {
+        return resultType;
+    }
+
+    public void setResultType(String resultType) {
+        this.resultType = resultType;
+    }
+
+    public String getResultMargin() {
+        return resultMargin;
+    }
+
+    public void setResultMargin(String resultMargin) {
+        this.resultMargin = resultMargin;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -151,5 +200,29 @@ public class Match {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Set<MatchTeam> getMatchTeams() {
+        return matchTeams;
+    }
+
+    public void setMatchTeams(Set<MatchTeam> matchTeams) {
+        this.matchTeams = matchTeams;
+    }
+
+    public Set<MatchPlayer> getMatchPlayers() {
+        return matchPlayers;
+    }
+
+    public void setMatchPlayers(Set<MatchPlayer> matchPlayers) {
+        this.matchPlayers = matchPlayers;
+    }
+
+    public Set<Innings> getInnings() {
+        return innings;
+    }
+
+    public void setInnings(Set<Innings> innings) {
+        this.innings = innings;
     }
 }

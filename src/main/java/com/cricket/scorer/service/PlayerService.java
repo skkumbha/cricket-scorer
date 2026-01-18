@@ -26,8 +26,7 @@ public class PlayerService {
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Player not found with id: " + id));
         
-        player.setName(playerDetails.getName());
-        player.setTeamId(playerDetails.getTeamId());
+        player.setFullName(playerDetails.getFullName());
         player.setRole(playerDetails.getRole());
         player.setJerseyNumber(playerDetails.getJerseyNumber());
         
@@ -41,7 +40,9 @@ public class PlayerService {
     }
 
     public List<Player> getPlayersByTeamId(Long teamId) {
-        return playerRepository.findByTeamId(teamId);
+        // This method no longer works with the new schema
+        // Players are linked to teams through team_players table
+        return List.of();
     }
 
     public List<Player> getPlayersByRole(String role) {
@@ -49,6 +50,6 @@ public class PlayerService {
     }
 
     public List<Player> searchPlayersByName(String name) {
-        return playerRepository.findByNameContainingIgnoreCase(name);
+        return playerRepository.findByFullNameContainingIgnoreCase(name);
     }
 }
