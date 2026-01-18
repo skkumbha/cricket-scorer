@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd"
+             version="2.2">
+    
+    <persistence-unit name="cricket-scorer-pu" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        
+        <!-- Entity Classes -->
+        <class>com.cricket.scorer.model.Team</class>
+        <class>com.cricket.scorer.model.Player</class>
+        <class>com.cricket.scorer.model.TeamPlayer</class>
+        <class>com.cricket.scorer.model.Match</class>
+        <class>com.cricket.scorer.model.MatchTeam</class>
+        <class>com.cricket.scorer.model.MatchPlayer</class>
+        <class>com.cricket.scorer.model.Innings</class>
+        <class>com.cricket.scorer.model.Over</class>
+        <class>com.cricket.scorer.model.Ball</class>
+        <class>com.cricket.scorer.model.MatchAccess</class>
+        <class>com.cricket.scorer.model.ScorerRequest</class>
+        <class>com.cricket.scorer.model.Tournament</class>
+        <class>com.cricket.scorer.model.Fixture</class>
+        <class>com.cricket.scorer.model.MatchAward</class>
+        
+        <properties>
+            <!-- Database connection properties -->
+            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/cricket_scorer"/>
+            <property name="javax.persistence.jdbc.user" value="postgres"/>
+            <property name="javax.persistence.jdbc.password" value="password"/>
+            
+            <!-- Hibernate properties -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL10Dialect"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.hbm2ddl.auto" value="validate"/>
+            
+            <!-- Connection pool properties -->
+            <property name="hibernate.c3p0.min_size" value="5"/>
+            <property name="hibernate.c3p0.max_size" value="20"/>
+            <property name="hibernate.c3p0.timeout" value="300"/>
+            <property name="hibernate.c3p0.max_statements" value="50"/>
+            <property name="hibernate.c3p0.idle_test_period" value="3000"/>
+        </properties>
+    </persistence-unit>
+</persistence>
