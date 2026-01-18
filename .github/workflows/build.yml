@@ -1,0 +1,26 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build
+        run: echo 'Building...'
+      - name: Check Build Status
+        if: ${{ failure() }}
+        run: echo 'Build failed!'
+
+    outputs:
+      build_success: ${{ success() }}
+
+  post:
+    needs: build
+    runs-on: ubuntu-latest
+    if: needs.build.outputs.build_success == 'false'
+    steps:
+      - name: Update Pull Request Status
+        run: echo 'Updating pull request status due to build failure'
