@@ -1,26 +1,38 @@
 name: Build
 
-on: [push, pull_request]
+on:
+  - push
+  - pull_request
+  - workflow_dispatch
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Build
-        run: echo 'Building...'
-      - name: Check Build Status
-        if: ${{ failure() }}
-        run: echo 'Build failed!'
+        uses: actions/checkout@v3
 
-    outputs:
-      build_success: ${{ success() }}
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Build (Maven)
+        run: mvn -B -DskipTests package
 
   post:
     needs: build
     runs-on: ubuntu-latest
-    if: needs.build.outputs.build_success == 'false'
+    if: needs.build.result == 'failure'
     steps:
       - name: Update Pull Request Status
         run: echo 'Updating pull request status due to build failure'
