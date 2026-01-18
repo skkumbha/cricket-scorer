@@ -25,12 +25,14 @@ public class Match {
     @Column(name = "team2_id", nullable = false)
     private Long team2Id;
 
+    @NotBlank(message = "Venue is required")
     @Column(nullable = false)
     private String venue;
 
     @Column(name = "match_date")
     private LocalDateTime matchDate;
 
+    @NotBlank(message = "Status is required")
     @Column(nullable = false)
     private String status; // Scheduled, In Progress, Completed, Cancelled
 

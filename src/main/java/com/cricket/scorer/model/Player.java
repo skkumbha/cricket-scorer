@@ -21,6 +21,7 @@ public class Player {
     @Column(name = "team_id", nullable = false)
     private Long teamId;
 
+    @NotBlank(message = "Role is required")
     @Column(nullable = false)
     private String role; // Batsman, Bowler, All-rounder, Wicket-keeper
 

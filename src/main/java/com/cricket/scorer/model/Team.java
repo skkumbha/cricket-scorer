@@ -16,6 +16,7 @@ public class Team {
     @Column(nullable = false)
     private String name;
 
+    @NotBlank(message = "Country is required")
     @Column(nullable = false)
     private String country;
 
