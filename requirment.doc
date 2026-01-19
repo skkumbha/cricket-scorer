@@ -1,0 +1,73 @@
+Local Cricket Scoring Web App - Requirements Specification
+
+1. Purpose & Vision
+Build a simple, mobile-first cricket scoring web app for local teams.
+No registration required.
+Live scoring, spectator view, scorer handoff, and shareable scorecards.
+
+2. Users & Roles
+Scorer (Editor): Can score and control the match.
+Spectator (Viewer): Can only view the live scoreboard.
+
+3. Platform & UX
+Mobile-first responsive design.
+Large buttons for one-hand use.
+Fast load time on slow networks.
+Works on all modern mobile browsers.
+
+4. Match Setup & Configuration
+Match name is optional.
+Match type default is 'Friendly'.
+Overs are required input.
+Balls per over default is 6 (editable).
+Location / ground is optional.
+
+5. Teams & Players
+Create and manage teams.
+Select players from any team pool for a match.
+Allow guest players.
+Easily move players between teams.
+
+6. Scoring & Match Control
+Ball-by-ball scoring interface.
+Quick buttons for runs and extras.
+Auto update score, wickets, overs, and run rate.
+
+7. Scorer Handoff
+Generate a scorer transfer link.
+New scorer requests control.
+Current scorer approves and hands over control.
+Prevent multiple scorers editing at the same time.
+
+8. Live Spectator View
+Public, read-only live scoreboard.
+Auto-updating view.
+Sharable spectator link via WhatsApp or copy link.
+
+9. Scoreboard & Export
+Live innings scoreboard.
+Final match summary.
+Export scoreboard as PDF or image.
+
+10. Data & Storage
+No user accounts required.
+Link-based access for scoring and viewing.
+Lightweight backend and browser storage.
+
+11. Security
+Separate edit and view access.
+Input validation and sanitization.
+No personal data beyond player names.
+
+12. Non-Functional Requirements
+Free-tier deployable.
+Fast and reliable.
+Low cost and no paid APIs.
+
+13. Team User Authorization (New Requirement)
+Support authorized users for each team.
+Allow assignment of user roles: Team Admin, Coach, Manager, Scorer, Umpire.
+Umpire role is optional; a match may or may not include an umpire.
+Authorized users can manage team players, approve scorer handoff, and access restricted team functions.
+Maintain role-based permissions without requiring full user accounts.
+Must not alter existing link-based access behavior.
