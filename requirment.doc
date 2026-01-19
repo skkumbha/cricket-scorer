@@ -71,3 +71,7 @@ Umpire role is optional; a match may or may not include an umpire.
 Authorized users can manage team players, approve scorer handoff, and access restricted team functions.
 Maintain role-based permissions without requiring full user accounts.
 Must not alter existing link-based access behavior.
+
+14. Reference websites
+    https://sahil3201.github.io/cricket-score/
+    https://ddomain.cricclubs.com/
