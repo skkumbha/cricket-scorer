@@ -1,0 +1,25 @@
+# Ignore Maven and build artifacts
+target/
+**/target/
+
+# Ignore local Maven repository
+.m2/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# Mac files
+.DS_Store
+
+# Git
+.git
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+
