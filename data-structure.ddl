@@ -126,7 +126,7 @@ CREATE TABLE team_authorized_users (
   id SERIAL PRIMARY KEY,
   team_id INT REFERENCES teams(id) ON DELETE CASCADE,
   user_name TEXT NOT NULL,
-  role TEXT NOT NULL,
+  user_role TEXT NOT NULL,
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT NOW()
 );
