@@ -1,0 +1,214 @@
+CRICKET SCORING APP – FUNCTIONAL TEST CASES (PLAIN TEXT)
+
+------------------------------------------------------------
+1. MATCH CREATION AND TEAM SETUP
+------------------------------------------------------------
+
+TC-01: Create a new match with required fields
+Steps:
+1. Open app
+2. Create Match
+3. Enter overs = 20
+4. Leave match name blank
+5. Leave location blank
+Expected:
+Match created successfully with default match type Friendly.
+
+TC-02: Select existing teams
+Steps:
+1. Create match
+2. Select Team A = Blue Warriors
+3. Select Team B = Red Strikers
+Expected:
+Teams load with correct players.
+
+TC-03: Add a new player during match setup
+Steps:
+1. During team selection, choose Add Player
+2. Enter name Rohan Mehta
+3. Assign to Team A
+Expected:
+Player added and visible in team list.
+
+TC-04: Add a new player mid-match
+Steps:
+1. Match is live
+2. Tap Add Player
+3. Add Guest Player 1
+Expected:
+Player added without interrupting scoring.
+
+------------------------------------------------------------
+2. BALL-BY-BALL SCORING
+------------------------------------------------------------
+
+TC-05: Record a legal delivery with runs
+Steps:
+1. Select striker
+2. Tap 1 run
+Expected:
+Score increases by 1, ball count increments, strike rotates correctly.
+
+TC-06: Record a boundary (4 runs)
+Expected:
+Score increases by 4, ball count increments.
+
+TC-07: Record a six (6 runs)
+Expected:
+Score increases by 6, ball count increments.
+
+TC-08: Record a wide ball
+Expected:
+Score increases by 1, ball count does not increment.
+
+TC-09: Record a no-ball with runs
+Scenario: No-ball + 2 runs off bat
+Expected:
+Score increases by 3 total, ball count does not increment.
+
+------------------------------------------------------------
+3. WICKET SCENARIOS
+------------------------------------------------------------
+
+TC-10: Bowled
+Steps:
+1. Tap Wicket
+2. Select Bowled
+3. Select dismissed batsman
+Expected:
+Wicket count increments, new batsman selection appears, ball count increments.
+
+TC-11: Caught
+Steps:
+1. Tap Wicket
+2. Select Caught
+3. Choose fielder
+Expected:
+Wicket recorded with fielder name.
+
+TC-12: Run-out (non-striker)
+Expected:
+Correct batsman marked out, runs counted only if completed, ball count increments.
+
+TC-13: LBW
+Expected:
+Wicket recorded, ball count increments.
+
+------------------------------------------------------------
+4. OVER MANAGEMENT
+------------------------------------------------------------
+
+TC-14: Over completion
+Scenario: 6 legal balls bowled
+Expected:
+Over closes automatically, bowler selection prompt appears.
+
+TC-15: Correct ball entry before over closes
+Scenario: Entered 4 runs instead of 1 run
+Steps:
+1. Edit last ball
+Expected:
+Score and run rate update correctly.
+
+TC-16: Correct ball entry after over closes
+Steps:
+1. Open previous over
+2. Edit ball
+Expected:
+Score updates globally without corrupting current over.
+
+------------------------------------------------------------
+5. SCORE VALIDATION AND TALLYING
+------------------------------------------------------------
+
+TC-17: Score vs balls consistency
+Scenario: 120 runs in 120 legal balls
+Expected:
+Overs = 20.0, no mismatch warnings.
+
+TC-18: Extras tally
+Expected:
+Total extras equals sum of wides, no-balls, byes, leg-byes.
+
+TC-19: Partnership calculation
+Expected:
+Partnership increases correctly and resets on wicket.
+
+------------------------------------------------------------
+6. PROJECTIONS AND RUN RATE
+------------------------------------------------------------
+
+TC-20: Run rate calculation
+Scenario: 45 runs in 10 overs
+Expected:
+Run rate = 4.50
+
+TC-21: Projected score
+Scenario: 45 runs in 10 overs of a 20-over match
+Expected:
+Projected score = 90
+
+TC-22: Required run rate (second innings)
+Scenario: Target 150, score 60 in 10 overs
+Expected:
+RRR = 9.0
+
+------------------------------------------------------------
+7. AUTHORIZED USER ROLES (NEW REQUIREMENT)
+------------------------------------------------------------
+
+TC-23: Team Admin access
+Expected:
+Can manage players and approve scorer handoff.
+
+TC-24: Scorer access
+Expected:
+Can score balls and control match.
+
+TC-25: Umpire role (optional)
+Scenario 1: No umpire assigned
+Expected:
+Match proceeds normally.
+Scenario 2: Umpire assigned
+Expected:
+Umpire can view or validate decisions if enabled.
+
+------------------------------------------------------------
+8. SCORER HANDOFF
+------------------------------------------------------------
+
+TC-26: Request scorer control
+Expected:
+Request sent to current scorer.
+
+TC-27: Approve handoff
+Expected:
+Control transferred to new scorer.
+
+------------------------------------------------------------
+9. LIVE SPECTATOR VIEW
+------------------------------------------------------------
+
+TC-28: Auto-update scoreboard
+Expected:
+Score updates in real time without refresh.
+
+TC-29: Share spectator link
+Expected:
+Link opens read-only scoreboard.
+
+------------------------------------------------------------
+10. EDGE CASES
+------------------------------------------------------------
+
+TC-30: All-out before overs complete
+Expected:
+Innings ends immediately.
+
+TC-31: Retired hurt
+Expected:
+Batsman marked retired hurt, not counted as wicket.
+
+TC-32: Super Over (if supported)
+Expected:
+New innings created with score reset.
