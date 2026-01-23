@@ -1,5 +1,5 @@
 -- Teams table
-CREATE TABLE cricket.teams (
+CREATE TABLE teams (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     short_name VARCHAR(50),
@@ -8,7 +8,7 @@ CREATE TABLE cricket.teams (
 );
 
 -- Players table
-CREATE TABLE cricket.players (
+CREATE TABLE players (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
     jersey_number INTEGER,
@@ -17,18 +17,18 @@ CREATE TABLE cricket.players (
 );
 
 -- Team Players mapping table
-CREATE TABLE cricket.team_players (
+CREATE TABLE team_players (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     team_id BIGINT NOT NULL,
     player_id BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (team_id) REFERENCES cricket.teams(id) ON DELETE CASCADE,
-    FOREIGN KEY (player_id) REFERENCES cricket.players(id) ON DELETE CASCADE,
+    FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
+    FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE,
     UNIQUE (team_id, player_id)
 );
 
 -- Tournaments table
-CREATE TABLE cricket.tournaments (
+CREATE TABLE tournaments (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     short_name VARCHAR(50),
@@ -38,7 +38,7 @@ CREATE TABLE cricket.tournaments (
 );
 
 -- Matches table
-CREATE TABLE cricket.matches (
+CREATE TABLE matches (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     match_name VARCHAR(255) NOT NULL,
     match_type VARCHAR(50),
@@ -53,22 +53,22 @@ CREATE TABLE cricket.matches (
     result_margin VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (tournament_id) REFERENCES cricket.tournaments(id) ON DELETE SET NULL
+    FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE SET NULL
 );
 
 -- Match Teams mapping table
-CREATE TABLE cricket.match_teams (
+CREATE TABLE match_teams (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     match_id BIGINT NOT NULL,
     team_id BIGINT NOT NULL,
     team_type VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (match_id) REFERENCES cricket.matches(id) ON DELETE CASCADE,
-    FOREIGN KEY (team_id) REFERENCES cricket.teams(id) ON DELETE CASCADE
+    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE,
+    FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE
 );
 
 -- Match Players mapping table
-CREATE TABLE cricket.match_players (
+CREATE TABLE match_players (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     match_id BIGINT NOT NULL,
     player_id BIGINT NOT NULL,
@@ -77,13 +77,13 @@ CREATE TABLE cricket.match_players (
     is_captain BOOLEAN DEFAULT FALSE,
     is_wicket_keeper BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (match_id) REFERENCES cricket.matches(id) ON DELETE CASCADE,
-    FOREIGN KEY (player_id) REFERENCES cricket.players(id) ON DELETE CASCADE,
-    FOREIGN KEY (team_id) REFERENCES cricket.teams(id) ON DELETE CASCADE
+    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE,
+    FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE,
+    FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE
 );
 
 -- Innings table
-CREATE TABLE cricket.innings (
+CREATE TABLE innings (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     match_id BIGINT NOT NULL,
     innings_number INTEGER NOT NULL,
@@ -95,13 +95,13 @@ CREATE TABLE cricket.innings (
     extras INTEGER DEFAULT 0,
     is_completed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (match_id) REFERENCES cricket.matches(id) ON DELETE CASCADE,
-    FOREIGN KEY (batting_team_id) REFERENCES cricket.teams(id) ON DELETE CASCADE,
-    FOREIGN KEY (bowling_team_id) REFERENCES cricket.teams(id) ON DELETE CASCADE
+    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE,
+    FOREIGN KEY (batting_team_id) REFERENCES teams(id) ON DELETE CASCADE,
+    FOREIGN KEY (bowling_team_id) REFERENCES teams(id) ON DELETE CASCADE
 );
 
 -- Overs table
-CREATE TABLE cricket.overs (
+CREATE TABLE overs (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     innings_id BIGINT NOT NULL,
     over_number INTEGER NOT NULL,
@@ -110,12 +110,12 @@ CREATE TABLE cricket.overs (
     wickets_taken INTEGER DEFAULT 0,
     maiden BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (innings_id) REFERENCES cricket.innings(id) ON DELETE CASCADE,
-    FOREIGN KEY (bowler_id) REFERENCES cricket.players(id) ON DELETE CASCADE
+    FOREIGN KEY (innings_id) REFERENCES innings(id) ON DELETE CASCADE,
+    FOREIGN KEY (bowler_id) REFERENCES players(id) ON DELETE CASCADE
 );
 
 -- Balls table
-CREATE TABLE cricket.balls (
+CREATE TABLE balls (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     over_id BIGINT NOT NULL,
     innings_id BIGINT NOT NULL,
@@ -131,26 +131,26 @@ CREATE TABLE cricket.balls (
     is_boundary BOOLEAN DEFAULT FALSE,
     is_six BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (over_id) REFERENCES cricket.overs(id) ON DELETE CASCADE,
-    FOREIGN KEY (innings_id) REFERENCES cricket.innings(id) ON DELETE CASCADE,
-    FOREIGN KEY (batsman_id) REFERENCES cricket.players(id) ON DELETE CASCADE,
-    FOREIGN KEY (bowler_id) REFERENCES cricket.players(id) ON DELETE CASCADE,
-    FOREIGN KEY (fielder_id) REFERENCES cricket.players(id) ON DELETE SET NULL
+    FOREIGN KEY (over_id) REFERENCES overs(id) ON DELETE CASCADE,
+    FOREIGN KEY (innings_id) REFERENCES innings(id) ON DELETE CASCADE,
+    FOREIGN KEY (batsman_id) REFERENCES players(id) ON DELETE CASCADE,
+    FOREIGN KEY (bowler_id) REFERENCES players(id) ON DELETE CASCADE,
+    FOREIGN KEY (fielder_id) REFERENCES players(id) ON DELETE SET NULL
 );
 
 -- Match Access table
-CREATE TABLE cricket.match_access (
+CREATE TABLE match_access (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     match_id BIGINT NOT NULL,
     user_id VARCHAR(255) NOT NULL,
     access_level VARCHAR(50) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (match_id) REFERENCES cricket.matches(id) ON DELETE CASCADE,
+    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE,
     UNIQUE (match_id, user_id)
 );
 
 -- Scorer Requests table
-CREATE TABLE cricket.scorer_requests (
+CREATE TABLE scorer_requests (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     match_id BIGINT NOT NULL,
     user_id VARCHAR(255) NOT NULL,
@@ -158,11 +158,11 @@ CREATE TABLE cricket.scorer_requests (
     requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     resolved_at TIMESTAMP,
     resolved_by VARCHAR(255),
-    FOREIGN KEY (match_id) REFERENCES cricket.matches(id) ON DELETE CASCADE
+    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE
 );
 
 -- Fixtures table
-CREATE TABLE cricket.fixtures (
+CREATE TABLE fixtures (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     tournament_id BIGINT NOT NULL,
     match_id BIGINT,
@@ -171,18 +171,18 @@ CREATE TABLE cricket.fixtures (
     venue VARCHAR(255),
     match_number INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (tournament_id) REFERENCES cricket.tournaments(id) ON DELETE CASCADE,
-    FOREIGN KEY (match_id) REFERENCES cricket.matches(id) ON DELETE SET NULL
+    FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,
+    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE SET NULL
 );
 
 -- Match Awards table
-CREATE TABLE cricket.match_awards (
+CREATE TABLE match_awards (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     match_id BIGINT NOT NULL,
     player_id BIGINT NOT NULL,
     award_type VARCHAR(100) NOT NULL,
     award_description VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (match_id) REFERENCES cricket.matches(id) ON DELETE CASCADE,
-    FOREIGN KEY (player_id) REFERENCES cricket.players(id) ON DELETE CASCADE
+    FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE,
+    FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE
 );
