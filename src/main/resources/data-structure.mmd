@@ -1,0 +1,157 @@
+```mermaid
+erDiagram
+    TEAMS {
+        INT id PK "Primary Key"
+        TEXT name NOT NULL
+        TEXT short_name
+        TEXT logo_url
+        TIMESTAMP created_at DEFAULT NOW()
+    }
+
+    PLAYERS {
+        INT id PK "Primary Key"
+        TEXT full_name NOT NULL
+        INT jersey_number
+        TEXT role
+        TIMESTAMP created_at DEFAULT NOW()
+    }
+
+    TEAM_PLAYERS {
+        INT team_id FK "References teams(id) ON DELETE CASCADE"
+        INT player_id FK "References players(id) ON DELETE CASCADE"
+        PRIMARY_KEY team_id, player_id
+    }
+
+    MATCHES {
+        UUID id PK "Primary Key"
+        TEXT match_name
+        TEXT match_type DEFAULT 'Friendly'
+        INT overs NOT NULL
+        INT balls_per_over DEFAULT 6
+        TEXT location
+        TIMESTAMP start_time DEFAULT NOW()
+        TEXT status DEFAULT 'setup'
+    }
+
+    MATCH_TEAMS {
+        INT id PK "Primary Key"
+        UUID match_id FK "References matches(id) ON DELETE CASCADE"
+        INT team_id FK "References teams(id)"
+        INT innings_number
+    }
+
+    MATCH_PLAYERS {
+        INT id PK "Primary Key"
+        UUID match_id FK "References matches(id) ON DELETE CASCADE"
+        INT team_id FK "References teams(id)"
+        INT player_id FK "References players(id)"
+        BOOLEAN is_playing DEFAULT TRUE
+    }
+
+    INNINGS {
+        INT id PK "Primary Key"
+        UUID match_id FK "References matches(id) ON DELETE CASCADE"
+        INT batting_team_id FK "References teams(id)"
+        INT bowling_team_id FK "References teams(id)"
+        INT innings_number
+        INT total_runs DEFAULT 0
+        INT wickets DEFAULT 0
+        DECIMAL overs_completed(4,1) DEFAULT 0
+    }
+
+    OVERS {
+        INT id PK "Primary Key"
+        INT innings_id FK "References innings(id) ON DELETE CASCADE"
+        INT over_number
+        INT bowler_id FK "References players(id)"
+    }
+
+    BALLS {
+        INT id PK "Primary Key"
+        INT over_id FK "References overs(id) ON DELETE CASCADE"
+        INT ball_number
+        INT striker_id FK "References players(id)"
+        INT non_striker_id FK "References players(id)"
+        INT bowler_id FK "References players(id)"
+        INT runs_off_bat DEFAULT 0
+        INT extras DEFAULT 0
+        TEXT extra_type
+        BOOLEAN is_wicket DEFAULT FALSE
+        TEXT wicket_type
+        INT dismissed_player_id FK "References players(id)"
+    }
+
+    MATCH_ACCESS {
+        INT id PK "Primary Key"
+        UUID match_id FK "References matches(id) ON DELETE CASCADE"
+        TEXT access_type
+        TEXT access_token UNIQUE NOT NULL
+        BOOLEAN is_active DEFAULT TRUE
+        TIMESTAMP created_at DEFAULT NOW()
+    }
+
+    SCORER_REQUESTS {
+        INT id PK "Primary Key"
+        UUID match_id FK "References matches(id) ON DELETE CASCADE"
+        TEXT requested_by_token
+        TEXT status DEFAULT 'pending'
+        TIMESTAMP created_at DEFAULT NOW()
+    }
+
+    TOURNAMENTS {
+        INT id PK "Primary Key"
+        TEXT name NOT NULL
+        TEXT season
+        DATE start_date
+        DATE end_date
+    }
+
+    FIXTURES {
+        INT id PK "Primary Key"
+        INT tournament_id FK "References tournaments(id)"
+        UUID match_id FK "References matches(id)"
+        TIMESTAMP scheduled_time
+    }
+
+    MATCH_AWARDS {
+        INT id PK "Primary Key"
+        UUID match_id FK "References matches(id)"
+        INT player_id FK "References players(id)"
+        TEXT award_type
+        TEXT notes
+    }
+
+    TEAM_AUTHORIZED_USERS {
+        INT id PK "Primary Key"
+        INT team_id FK "References teams(id) ON DELETE CASCADE"
+        TEXT user_name NOT NULL
+        TEXT user_role NOT NULL
+        BOOLEAN is_active DEFAULT TRUE
+        TIMESTAMP created_at DEFAULT NOW()
+    }
+
+    TEAMS ||--o{ TEAM_PLAYERS : "team_id"
+    PLAYERS ||--o{ TEAM_PLAYERS : "player_id"
+    TEAMS ||--o{ MATCH_TEAMS : "team_id"
+    MATCHES ||--o{ MATCH_TEAMS : "match_id"
+    MATCHES ||--o{ MATCH_PLAYERS : "match_id"
+    TEAMS ||--o{ MATCH_PLAYERS : "team_id"
+    PLAYERS ||--o{ MATCH_PLAYERS : "player_id"
+    MATCHES ||--o{ INNINGS : "match_id"
+    TEAMS ||--o{ INNINGS : "batting_team_id"
+    TEAMS ||--o{ INNINGS : "bowling_team_id"
+    INNINGS ||--o{ OVERS : "innings_id"
+    PLAYERS ||--o{ OVERS : "bowler_id"
+    OVERS ||--o{ BALLS : "over_id"
+    PLAYERS ||--o{ BALLS : "striker_id"
+    PLAYERS ||--o{ BALLS : "non_striker_id"
+    PLAYERS ||--o{ BALLS : "bowler_id"
+    PLAYERS ||--o{ BALLS : "dismissed_player_id"
+    MATCHES ||--o{ MATCH_ACCESS : "match_id"
+    MATCHES ||--o{ SCORER_REQUESTS : "match_id"
+    TOURNAMENTS ||--o{ FIXTURES : "tournament_id"
+    MATCHES ||--o{ FIXTURES : "match_id"
+    MATCHES ||--o{ MATCH_AWARDS : "match_id"
+    PLAYERS ||--o{ MATCH_AWARDS : "player_id"
+    TEAMS ||--o{ TEAM_AUTHORIZED_USERS : "team_id"
+```
