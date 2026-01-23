@@ -1,5 +1,5 @@
 -- Teams table
-CREATE TABLE cricket.teams (
+CREATE TABLE teams (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     short_name VARCHAR(50),
