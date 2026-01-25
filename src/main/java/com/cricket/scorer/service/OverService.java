@@ -1,5 +1,7 @@
 package com.cricket.scorer.service;
 
+import com.cricket.scorer.dto.OverDTO;
+import com.cricket.scorer.mapper.OverMapper;
 import com.cricket.scorer.model.Innings;
 import com.cricket.scorer.model.Over;
 import com.cricket.scorer.model.Player;
@@ -23,30 +25,34 @@ public class OverService {
 
     @Autowired
     private PlayerRepository playerRepository;
+    
+    @Autowired
+    private OverMapper overMapper;
 
-    public List<Over> getAllOvers() {
-        return overRepository.findAll();
+    public List<OverDTO> getAllOvers() {
+        return overMapper.toDtoList(overRepository.findAll());
     }
 
-    public Optional<Over> getOverById(Long id) {
-        return overRepository.findById(id);
+    public Optional<OverDTO> getOverById(Long id) {
+        return overRepository.findById(id).map(overMapper::toDto);
     }
 
-    public List<Over> getOversByInningsId(Long inningsId) {
-        return overRepository.findByInningsIdOrderByOverNumber(inningsId);
+    public List<OverDTO> getOversByInningsId(Long inningsId) {
+        return overMapper.toDtoList(overRepository.findByInningsIdOrderByOverNumber(inningsId));
     }
 
-    public Over createOver(Long inningsId, Integer overNumber, Long bowlerId) {
+    public OverDTO createOver(Long inningsId, Integer overNumber, Long bowlerId) {
         Innings innings = inningsRepository.findById(inningsId)
                 .orElseThrow(() -> new RuntimeException("Innings not found with id: " + inningsId));
         Player bowler = playerRepository.findById(bowlerId)
                 .orElseThrow(() -> new RuntimeException("Bowler not found with id: " + bowlerId));
 
         Over over = new Over(innings, overNumber, bowler);
-        return overRepository.save(over);
+        Over savedOver = overRepository.save(over);
+        return overMapper.toDto(savedOver);
     }
 
-    public Over updateOver(Long id, Over updates) {
+    public OverDTO updateOver(Long id, Over updates) {
         Over over = overRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Over not found with id: " + id));
 
@@ -56,7 +62,8 @@ public class OverService {
         if (updates.getWicketsTaken() != null) over.setWicketsTaken(updates.getWicketsTaken());
         if (updates.getMaiden() != null) over.setMaiden(updates.getMaiden());
 
-        return overRepository.save(over);
+        Over savedOver = overRepository.save(over);
+        return overMapper.toDto(savedOver);
     }
 
     public void deleteOver(Long id) {

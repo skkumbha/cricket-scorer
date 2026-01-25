@@ -1,5 +1,6 @@
 package com.cricket.scorer.controller;
 
+import com.cricket.scorer.dto.OverDTO;
 import com.cricket.scorer.model.Over;
 import com.cricket.scorer.service.OverService;
 import jakarta.validation.Valid;
@@ -18,19 +19,19 @@ public class OverController {
     private OverService overService;
 
     @GetMapping
-    public ResponseEntity<List<Over>> getAllOvers() {
+    public ResponseEntity<List<OverDTO>> getAllOvers() {
         return ResponseEntity.ok(overService.getAllOvers());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Over> getOverById(@PathVariable Long id) {
+    public ResponseEntity<OverDTO> getOverById(@PathVariable Long id) {
         return overService.getOverById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/innings/{inningsId}")
-    public ResponseEntity<List<Over>> getOversByInnings(@PathVariable Long inningsId) {
+    public ResponseEntity<List<OverDTO>> getOversByInnings(@PathVariable Long inningsId) {
         return ResponseEntity.ok(overService.getOversByInningsId(inningsId));
     }
 
@@ -43,15 +44,15 @@ public class OverController {
     }
 
     @PostMapping
-    public ResponseEntity<Over> createOver(@Valid @RequestBody CreateOverRequest req) {
-        Over created = overService.createOver(req.inningsId, req.overNumber, req.bowlerId);
+    public ResponseEntity<OverDTO> createOver(@Valid @RequestBody CreateOverRequest req) {
+        OverDTO created = overService.createOver(req.inningsId, req.overNumber, req.bowlerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Over> updateOver(@PathVariable Long id, @Valid @RequestBody Over updates) {
+    public ResponseEntity<OverDTO> updateOver(@PathVariable Long id, @Valid @RequestBody Over updates) {
         try {
-            Over updated = overService.updateOver(id, updates);
+            OverDTO updated = overService.updateOver(id, updates);
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

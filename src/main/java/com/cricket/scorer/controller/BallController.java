@@ -1,5 +1,6 @@
 package com.cricket.scorer.controller;
 
+import com.cricket.scorer.dto.BallDTO;
 import com.cricket.scorer.model.Ball;
 import com.cricket.scorer.service.BallService;
 import jakarta.validation.Valid;
@@ -18,24 +19,24 @@ public class BallController {
     private BallService ballService;
 
     @GetMapping
-    public ResponseEntity<List<Ball>> getAllBalls() {
+    public ResponseEntity<List<BallDTO>> getAllBalls() {
         return ResponseEntity.ok(ballService.getAllBalls());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ball> getBallById(@PathVariable Long id) {
+    public ResponseEntity<BallDTO> getBallById(@PathVariable Long id) {
         return ballService.getBallById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/over/{overId}")
-    public ResponseEntity<List<Ball>> getBallsByOver(@PathVariable Long overId) {
+    public ResponseEntity<List<BallDTO>> getBallsByOver(@PathVariable Long overId) {
         return ResponseEntity.ok(ballService.getBallsByOverId(overId));
     }
 
     @GetMapping("/innings/{inningsId}")
-    public ResponseEntity<List<Ball>> getBallsByInnings(@PathVariable Long inningsId) {
+    public ResponseEntity<List<BallDTO>> getBallsByInnings(@PathVariable Long inningsId) {
         return ResponseEntity.ok(ballService.getBallsByInningsId(inningsId));
     }
 
@@ -58,8 +59,8 @@ public class BallController {
     }
 
     @PostMapping
-    public ResponseEntity<Ball> createBall(@Valid @RequestBody CreateBallRequest req) {
-        Ball created = ballService.createBall(
+    public ResponseEntity<BallDTO> createBall(@Valid @RequestBody CreateBallRequest req) {
+        BallDTO created = ballService.createBall(
                 req.overId,
                 req.inningsId,
                 req.ballNumber,
@@ -78,9 +79,9 @@ public class BallController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Ball> updateBall(@PathVariable Long id, @Valid @RequestBody Ball updates) {
+    public ResponseEntity<BallDTO> updateBall(@PathVariable Long id, @Valid @RequestBody Ball updates) {
         try {
-            Ball updated = ballService.updateBall(id, updates);
+            BallDTO updated = ballService.updateBall(id, updates);
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

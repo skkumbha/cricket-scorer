@@ -1,5 +1,7 @@
 package com.cricket.scorer.service;
 
+import com.cricket.scorer.dto.BallDTO;
+import com.cricket.scorer.mapper.BallMapper;
 import com.cricket.scorer.model.Ball;
 import com.cricket.scorer.model.Innings;
 import com.cricket.scorer.model.Over;
@@ -31,24 +33,27 @@ public class BallService {
 
     @Autowired
     private PlayerRepository playerRepository;
+    
+    @Autowired
+    private BallMapper ballMapper;
 
-    public List<Ball> getAllBalls() {
-        return ballRepository.findAll();
+    public List<BallDTO> getAllBalls() {
+        return ballMapper.toDtoList(ballRepository.findAll());
     }
 
-    public Optional<Ball> getBallById(Long id) {
-        return ballRepository.findById(id);
+    public Optional<BallDTO> getBallById(Long id) {
+        return ballRepository.findById(id).map(ballMapper::toDto);
     }
 
-    public List<Ball> getBallsByOverId(Long overId) {
-        return ballRepository.findByOverIdOrderByBallNumber(overId);
+    public List<BallDTO> getBallsByOverId(Long overId) {
+        return ballMapper.toDtoList(ballRepository.findByOverIdOrderByBallNumber(overId));
     }
 
-    public List<Ball> getBallsByInningsId(Long inningsId) {
-        return ballRepository.findByInningsId(inningsId);
+    public List<BallDTO> getBallsByInningsId(Long inningsId) {
+        return ballMapper.toDtoList(ballRepository.findByInningsId(inningsId));
     }
 
-    public Ball createBall(Long overId, Long inningsId, Integer ballNumber, Long batsmanId, Long bowlerId,
+    public BallDTO createBall(Long overId, Long inningsId, Integer ballNumber, Long batsmanId, Long bowlerId,
                            Integer runsScored, Integer extras, String extraType, Boolean isWicket,
                            String wicketType, Long fielderId, Boolean isBoundary, Boolean isSix) {
 
@@ -126,10 +131,10 @@ public class BallService {
         }
         inningsRepository.save(innings);
 
-        return saved;
+        return ballMapper.toDto(saved);
     }
 
-    public Ball updateBall(Long id, Ball updates) {
+    public BallDTO updateBall(Long id, Ball updates) {
         Ball ball = ballRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ball not found with id: " + id));
 
@@ -202,7 +207,7 @@ public class BallService {
 
         inningsRepository.save(innings);
 
-        return saved;
+        return ballMapper.toDto(saved);
     }
 
     public void deleteBall(Long id) {
