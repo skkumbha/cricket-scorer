@@ -1,7 +1,7 @@
 package com.cricket.scorer.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +14,6 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Team name is required")
     @Column(nullable = false)
     private String name;
 
@@ -91,5 +90,10 @@ public class Team {
 
     public void setTeamPlayers(Set<TeamPlayer> teamPlayers) {
         this.teamPlayers = teamPlayers;
+    }
+
+    public void addTeamPlayer(TeamPlayer teamPlayer) {
+        teamPlayers.add(teamPlayer);
+        teamPlayer.setTeam(this);
     }
 }

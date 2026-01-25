@@ -2,6 +2,7 @@ package com.cricket.scorer.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "team_players", uniqueConstraints = {
@@ -69,5 +70,25 @@ public class TeamPlayer {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    // Equality based on (team.id, player.id) so Set semantics work for associations
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TeamPlayer)) return false;
+        TeamPlayer that = (TeamPlayer) o;
+        Long thisTeamId = this.team != null ? this.team.getId() : null;
+        Long thatTeamId = that.team != null ? that.team.getId() : null;
+        Long thisPlayerId = this.player != null ? this.player.getId() : null;
+        Long thatPlayerId = that.player != null ? that.player.getId() : null;
+        return Objects.equals(thisTeamId, thatTeamId) && Objects.equals(thisPlayerId, thatPlayerId);
+    }
+
+    @Override
+    public int hashCode() {
+        Long teamId = team != null ? team.getId() : null;
+        Long playerId = player != null ? player.getId() : null;
+        return Objects.hash(teamId, playerId);
     }
 }

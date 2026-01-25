@@ -22,6 +22,7 @@ COPY --from=build /workspace/${JAR_FILE} /app/app.jar
 
 # Expose the default Spring Boot port
 EXPOSE 8080
+EXPOSE 5005
 
 # Start the Spring Boot application
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005","-jar", "/app/app.jar"]
