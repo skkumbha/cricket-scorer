@@ -1,5 +1,6 @@
 package com.cricket.scorer.controller;
 
+import com.cricket.scorer.dto.InningsDTO;
 import com.cricket.scorer.model.Innings;
 import com.cricket.scorer.service.InningsService;
 import jakarta.validation.Valid;
@@ -19,19 +20,19 @@ public class InningsController {
     private InningsService inningsService;
 
     @GetMapping
-    public ResponseEntity<List<Innings>> getAllInnings() {
+    public ResponseEntity<List<InningsDTO>> getAllInnings() {
         return ResponseEntity.ok(inningsService.getAllInnings());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Innings> getInningsById(@PathVariable Long id) {
+    public ResponseEntity<InningsDTO> getInningsById(@PathVariable Long id) {
         return inningsService.getInningsById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/match/{matchId}")
-    public ResponseEntity<List<Innings>> getInningsByMatch(@PathVariable Long matchId) {
+    public ResponseEntity<List<InningsDTO>> getInningsByMatch(@PathVariable Long matchId) {
         return ResponseEntity.ok(inningsService.getInningsByMatchId(matchId));
     }
 
@@ -45,8 +46,8 @@ public class InningsController {
     }
 
     @PostMapping
-    public ResponseEntity<Innings> createInnings(@Valid @RequestBody CreateInningsRequest req) {
-        Innings created = inningsService.createInnings(req.matchId, req.inningsNumber, req.battingTeamId, req.bowlingTeamId);
+    public ResponseEntity<InningsDTO> createInnings(@Valid @RequestBody CreateInningsRequest req) {
+        InningsDTO created = inningsService.createInnings(req.matchId, req.inningsNumber, req.battingTeamId, req.bowlingTeamId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -61,7 +62,7 @@ public class InningsController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Innings> updateInnings(@PathVariable Long id, @Valid @RequestBody UpdateInningsRequest req) {
+    public ResponseEntity<InningsDTO> updateInnings(@PathVariable Long id, @Valid @RequestBody UpdateInningsRequest req) {
         try {
             Innings updates = new Innings();
             updates.setTotalRuns(req.totalRuns);
@@ -70,7 +71,7 @@ public class InningsController {
             updates.setExtras(req.extras);
             updates.setIsCompleted(req.isCompleted);
 
-            Innings updated = inningsService.updateInnings(id, updates);
+            InningsDTO updated = inningsService.updateInnings(id, updates);
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
