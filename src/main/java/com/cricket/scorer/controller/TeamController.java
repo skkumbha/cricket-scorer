@@ -46,6 +46,16 @@ public class TeamController {
         }
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<Team> partiallyUpdateTeam(@PathVariable Long id, @RequestBody Team team) {
+        try {
+            Team updatedTeam = teamService.updateTeam(id, team);
+            return ResponseEntity.ok(updatedTeam);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTeam(@PathVariable Long id) {
         try {
