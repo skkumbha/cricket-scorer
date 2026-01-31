@@ -1,5 +1,7 @@
 package com.cricket.scorer.service;
 
+import com.cricket.scorer.dto.PlayerDTO;
+import com.cricket.scorer.mapper.PlayerMapper;
 import com.cricket.scorer.model.Player;
 import com.cricket.scorer.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,24 +15,35 @@ public class PlayerService {
 
     @Autowired
     private PlayerRepository playerRepository;
+    @Autowired
+    private PlayerMapper playerMapper;
 
-    public Optional<Player> getPlayerById(Long id) {
-        return playerRepository.findById(id);
+    public Optional<PlayerDTO> getPlayerById(Long id) {
+        return playerRepository.findById(id).map(playerMapper::toDto);
     }
 
-    public Player createPlayer(Player player) {
-        return playerRepository.save(player);
+    public PlayerDTO createPlayer(PlayerDTO playerDTO) {
+        Player player = playerMapper.toEntity(playerDTO);
+        Player savedPlayer = playerRepository.save(player);
+        return playerMapper.toDto(savedPlayer);
     }
 
-    public Player updatePlayer(Long id, Player playerDetails) {
+    public PlayerDTO updatePlayer(Long id, PlayerDTO playerDTO) {
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Player not found with id: " + id));
         
-        player.setFullName(playerDetails.getFullName());
-        player.setRole(playerDetails.getRole());
-        player.setJerseyNumber(playerDetails.getJerseyNumber());
+        if (playerDTO.getFullName() != null) {
+            player.setFullName(playerDTO.getFullName());
+        }
+        if (playerDTO.getRole() != null) {
+            player.setRole(playerDTO.getRole());
+        }
+        if (playerDTO.getJerseyNumber() != null) {
+            player.setJerseyNumber(playerDTO.getJerseyNumber());
+        }
         
-        return playerRepository.save(player);
+        Player savedPlayer = playerRepository.save(player);
+        return playerMapper.toDto(savedPlayer);
     }
 
     public void deletePlayer(Long id) {
@@ -39,17 +52,21 @@ public class PlayerService {
         playerRepository.delete(player);
     }
 
-    public List<Player> getPlayersByTeamId(Long teamId) {
+    public List<PlayerDTO> getPlayersByTeamId(Long teamId) {
         // This method no longer works with the new schema
         // Players are linked to teams through team_players table
         return List.of();
     }
 
-    public List<Player> getPlayersByRole(String role) {
-        return playerRepository.findByRole(role);
+    public List<PlayerDTO> getPlayersByRole(String role) {
+        return playerMapper.toDtoList(playerRepository.findByRole(role));
     }
 
-    public List<Player> searchPlayersByName(String name) {
-        return playerRepository.findByFullNameContainingIgnoreCase(name);
+    public List<PlayerDTO> searchPlayersByName(String name) {
+        return playerMapper.toDtoList(playerRepository.findByFullNameContainingIgnoreCase(name));
+    }
+
+    public Player toEntity(PlayerDTO playerDTO) {
+        return playerMapper.toEntity(playerDTO);
     }
 }

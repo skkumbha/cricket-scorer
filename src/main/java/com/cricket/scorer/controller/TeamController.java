@@ -1,6 +1,6 @@
 package com.cricket.scorer.controller;
 
-import com.cricket.scorer.model.Team;
+import com.cricket.scorer.dto.TeamDTO;
 import com.cricket.scorer.service.TeamService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,28 +18,28 @@ public class TeamController {
     private TeamService teamService;
 
     @GetMapping
-    public ResponseEntity<List<Team>> getAllTeams() {
-        List<Team> teams = teamService.getAllTeams();
+    public ResponseEntity<List<TeamDTO>> getAllTeams() {
+        List<TeamDTO> teams = teamService.getAllTeams();
         return ResponseEntity.ok(teams);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Team> getTeamById(@PathVariable Long id) {
+    public ResponseEntity<TeamDTO> getTeamById(@PathVariable Long id) {
         return teamService.getTeamById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Team> createTeam(@Valid @RequestBody Team team) {
-        Team createdTeam = teamService.createTeam(team);
+    public ResponseEntity<TeamDTO> createTeam(@Valid @RequestBody TeamDTO teamDTO) {
+        TeamDTO createdTeam = teamService.createTeam(teamDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTeam);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Team> updateTeam(@PathVariable Long id, @Valid @RequestBody Team team) {
+    public ResponseEntity<TeamDTO> updateTeam(@PathVariable Long id, @Valid @RequestBody TeamDTO teamDTO) {
         try {
-            Team updatedTeam = teamService.updateTeam(id, team);
+            TeamDTO updatedTeam = teamService.updateTeam(id, teamDTO);
             return ResponseEntity.ok(updatedTeam);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
@@ -47,9 +47,9 @@ public class TeamController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Team> partiallyUpdateTeam(@PathVariable Long id, @RequestBody Team team) {
+    public ResponseEntity<TeamDTO> partiallyUpdateTeam(@PathVariable Long id, @RequestBody TeamDTO teamDTO) {
         try {
-            Team updatedTeam = teamService.updateTeam(id, team);
+            TeamDTO updatedTeam = teamService.updateTeam(id, teamDTO);
             return ResponseEntity.ok(updatedTeam);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
@@ -67,8 +67,8 @@ public class TeamController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Team>> searchTeamsByName(@RequestParam String name) {
-        List<Team> teams = teamService.searchTeamsByName(name);
+    public ResponseEntity<List<TeamDTO>> searchTeamsByName(@RequestParam String name) {
+        List<TeamDTO> teams = teamService.searchTeamsByName(name);
         return ResponseEntity.ok(teams);
     }
 }

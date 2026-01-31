@@ -1,102 +1,76 @@
-package com.cricket.scorer.model;
+package com.cricket.scorer.dto;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
-@Entity
-@Table(name = "teams")
-public class Team {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class TeamDTO {
+    
     private Long id;
-
-    @Column(nullable = false)
     private String name;
-
-    @Column(name = "short_name", length = 50)
     private String shortName;
-
-    @Column(name = "logo_url", length = 500)
     private String logoUrl;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "team_players",
-    joinColumns = @JoinColumn(name = "team_id"),
-    inverseJoinColumns = @JoinColumn(name = "player_id"))
-    private Set<Player> players = new HashSet<>();
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
-
+    private List<PlayerDTO> players;
+    
     // Constructors
-    public Team() {
+    public TeamDTO() {
     }
-
-    public Team(String name, String shortName) {
+    
+    public TeamDTO(Long id, String name, String shortName, String logoUrl, LocalDateTime createdAt, List<PlayerDTO> players) {
+        this.id = id;
         this.name = name;
         this.shortName = shortName;
+        this.logoUrl = logoUrl;
+        this.createdAt = createdAt;
+        this.players = players;
     }
-
+    
     // Getters and Setters
     public Long getId() {
         return id;
     }
-
+    
     public void setId(Long id) {
         this.id = id;
     }
-
+    
     public String getName() {
         return name;
     }
-
+    
     public void setName(String name) {
         this.name = name;
     }
-
+    
     public String getShortName() {
         return shortName;
     }
-
+    
     public void setShortName(String shortName) {
         this.shortName = shortName;
     }
-
+    
     public String getLogoUrl() {
         return logoUrl;
     }
-
+    
     public void setLogoUrl(String logoUrl) {
         this.logoUrl = logoUrl;
     }
-
+    
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-
+    
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-
-    public Set<Player> getPlayers() {
+    public List<PlayerDTO> getPlayers() {
         return players;
     }
-
-    public void setPlayers(Set<Player> players) {
+    public void setPlayers(List<PlayerDTO> players) {
         this.players = players;
-    }
-
-    public void addPlayer(Player player) {
-        players.add(player);
-        player.getTeams().add(this);
     }
 }
