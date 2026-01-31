@@ -3,28 +3,28 @@ package com.cricket.scorer.dto;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class TeamDTO {
     
     private Long id;
-    
-    @NotBlank(message = "Team name is required")
     private String name;
-    
     private String shortName;
     private String logoUrl;
     private LocalDateTime createdAt;
+    private List<PlayerDTO> players;
     
     // Constructors
     public TeamDTO() {
     }
     
-    public TeamDTO(Long id, String name, String shortName, String logoUrl, LocalDateTime createdAt) {
+    public TeamDTO(Long id, String name, String shortName, String logoUrl, LocalDateTime createdAt, List<PlayerDTO> players) {
         this.id = id;
         this.name = name;
         this.shortName = shortName;
         this.logoUrl = logoUrl;
         this.createdAt = createdAt;
+        this.players = players;
     }
     
     // Getters and Setters
@@ -66,5 +66,11 @@ public class TeamDTO {
     
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+    public List<PlayerDTO> getPlayers() {
+        return players;
+    }
+    public void setPlayers(List<PlayerDTO> players) {
+        this.players = players;
     }
 }

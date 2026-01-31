@@ -27,8 +27,8 @@ public class Player {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<TeamPlayer> teamPlayers = new HashSet<>();
+    @ManyToMany(mappedBy = "players")
+    private Set<Team> teams = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
@@ -86,11 +86,7 @@ public class Player {
         this.createdAt = createdAt;
     }
 
-    public Set<TeamPlayer> getTeamPlayers() {
-        return teamPlayers;
-    }
-
-    public void setTeamPlayers(Set<TeamPlayer> teamPlayers) {
-        this.teamPlayers = teamPlayers;
+    public Set<Team> getTeams() {
+        return teams;
     }
 }

@@ -65,4 +65,8 @@ public class PlayerService {
     public List<PlayerDTO> searchPlayersByName(String name) {
         return playerMapper.toDtoList(playerRepository.findByFullNameContainingIgnoreCase(name));
     }
+
+    public Player toEntity(PlayerDTO playerDTO) {
+        return playerMapper.toEntity(playerDTO);
+    }
 }

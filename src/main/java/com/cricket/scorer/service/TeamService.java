@@ -1,5 +1,6 @@
 package com.cricket.scorer.service;
 
+import com.cricket.scorer.dto.PlayerDTO;
 import com.cricket.scorer.dto.TeamDTO;
 import com.cricket.scorer.mapper.TeamMapper;
 import com.cricket.scorer.model.Player;
@@ -50,7 +51,16 @@ public class TeamService {
         if (teamDTO.getLogoUrl() != null) {
             team.setLogoUrl(teamDTO.getLogoUrl());
         }
-
+        if (teamDTO.getPlayers()!= null) {
+            for (var playerDTO : teamDTO.getPlayers()) {
+                Optional<PlayerDTO> playerOpt = playerService.getPlayerById(playerDTO.getId());
+                if (playerOpt.isEmpty()) {
+                    throw new RuntimeException("Player not found with id: " + playerDTO.getId());
+                } else {
+                    team.addPlayer(playerService.toEntity(playerOpt.get()));
+                }
+            }
+        }
         Team savedTeam = teamRepository.save(team);
         return teamMapper.toDto(savedTeam);
     }

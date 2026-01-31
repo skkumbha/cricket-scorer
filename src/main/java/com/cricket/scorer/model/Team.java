@@ -26,8 +26,11 @@ public class Team {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<TeamPlayer> teamPlayers = new HashSet<>();
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "team_players",
+    joinColumns = @JoinColumn(name = "team_id"),
+    inverseJoinColumns = @JoinColumn(name = "player_id"))
+    private Set<Player> players = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
@@ -84,16 +87,16 @@ public class Team {
         this.createdAt = createdAt;
     }
 
-    public Set<TeamPlayer> getTeamPlayers() {
-        return teamPlayers;
+    public Set<Player> getPlayers() {
+        return players;
     }
 
-    public void setTeamPlayers(Set<TeamPlayer> teamPlayers) {
-        this.teamPlayers = teamPlayers;
+    public void setPlayers(Set<Player> players) {
+        this.players = players;
     }
 
-    public void addTeamPlayer(TeamPlayer teamPlayer) {
-        teamPlayers.add(teamPlayer);
-        teamPlayer.setTeam(this);
+    public void addPlayer(Player player) {
+        players.add(player);
+        player.getTeams().add(this);
     }
 }

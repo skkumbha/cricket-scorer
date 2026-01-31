@@ -7,8 +7,6 @@ import java.time.LocalDateTime;
 public class PlayerDTO {
     
     private Long id;
-    
-    @NotBlank(message = "Player full name is required")
     private String fullName;
     
     private Integer jerseyNumber;
