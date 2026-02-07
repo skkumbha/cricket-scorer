@@ -2,7 +2,11 @@ package com.cricket.scorer.service;
 
 import com.cricket.scorer.dto.MatchDTO;
 import com.cricket.scorer.mapper.MatchMapper;
+import com.cricket.scorer.mapper.PlayerMapper;
+import com.cricket.scorer.mapper.TeamMapper;
 import com.cricket.scorer.model.Match;
+import com.cricket.scorer.model.MatchPlayer;
+import com.cricket.scorer.model.Team;
 import com.cricket.scorer.repository.MatchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,13 +21,28 @@ public class MatchService {
     private MatchRepository matchRepository;
     @Autowired
     private MatchMapper matchMapper;
+    @Autowired
+    private TeamService teamService;
+    @Autowired
+    private PlayerService playerService;
+    @Autowired
+    private TeamMapper teamMapper;
+    @Autowired
+    private PlayerMapper playerMapper;
+    @Autowired
+    private MatchPlayerService matchPlayerService;
 
     public List<MatchDTO> getAllMatches() {
         return matchMapper.toDtoList(matchRepository.findAll());
     }
 
     public Optional<MatchDTO> getMatchById(Long id) {
-        return matchRepository.findById(id).map(matchMapper::toDto);
+        Optional<Match> mactch = matchRepository.findById(id);
+        MatchDTO matchDTO = matchMapper.toDto(mactch.get());
+        matchDTO.getTeams().forEach(teamDTO -> {
+            teamDTO.setPlayers(matchPlayerService.getPlayersByMatchIdAndTeamId(id, teamDTO.getId()));
+        });
+        return matchDTO != null ? Optional.of(matchDTO) : Optional.empty();
     }
 
     public MatchDTO createMatch(MatchDTO matchDTO) {
@@ -54,6 +73,20 @@ public class MatchService {
         if (matchDTO.getWinnerTeamId() != null) {
             match.setWinnerTeamId(matchDTO.getWinnerTeamId());
         }
+        if (matchDTO.getTeams() != null) {
+            matchDTO.getTeams().forEach(teamDTO -> {
+                Optional<Team> team = teamService.getTeamById(teamDTO.getId()).map(teamMapper::toEntity);
+                match.addTeam(team.get());
+                teamDTO.getPlayers().forEach(playerDTO -> {
+                    MatchPlayer matchPlayer = new MatchPlayer();
+                    matchPlayer.setMatch(match);
+                    matchPlayer.setTeam(team.get());
+                    matchPlayer.setPlayer(playerService.getPlayerById(playerDTO.getId()).map(playerMapper::toEntity).get());
+                    match.addMatchPlayer(matchPlayer);
+                });
+            });
+        }
+
         
         Match savedMatch = matchRepository.save(match);
         return matchMapper.toDto(savedMatch);

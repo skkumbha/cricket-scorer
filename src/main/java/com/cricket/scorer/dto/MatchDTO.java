@@ -1,7 +1,7 @@
 package com.cricket.scorer.dto;
 
 import jakarta.validation.constraints.NotBlank;
-
+import java.util.List;
 import java.time.LocalDateTime;
 
 public class MatchDTO {
@@ -23,6 +23,7 @@ public class MatchDTO {
     private String resultMargin;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private List<TeamDTO> teams;
     
     // Constructors
     public MatchDTO() {
@@ -139,5 +140,18 @@ public class MatchDTO {
     
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<TeamDTO> getTeams() {
+        return teams;
+    }
+
+    public void setTeams(List<TeamDTO> teams) {
+        this.teams = teams;
+    }
+
+    public List<TeamDTO> addTeam(TeamDTO team) {
+        this.teams.add(team);
+        return this.teams;
     }
 }
