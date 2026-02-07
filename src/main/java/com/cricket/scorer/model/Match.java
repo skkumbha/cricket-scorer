@@ -3,7 +3,9 @@ package com.cricket.scorer.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -58,10 +60,17 @@ public class Match {
     private Set<MatchTeam> matchTeams = new HashSet<>();
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<MatchPlayer> matchPlayers = new HashSet<>();
+    private List<MatchPlayer> matchPlayers = new ArrayList<>();
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Innings> innings = new HashSet<>();
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "match_teams",
+            joinColumns = @JoinColumn(name = "match_id"),
+            inverseJoinColumns = @JoinColumn(name = "team_id"))
+    private Set<Team> teams;
+
 
     @PrePersist
     protected void onCreate() {
@@ -210,12 +219,28 @@ public class Match {
         this.matchTeams = matchTeams;
     }
 
-    public Set<MatchPlayer> getMatchPlayers() {
+    public void addMatchPlayer(MatchPlayer matchPlayer) {
+        this.matchPlayers.add(matchPlayer);
+    }
+
+    public List<MatchPlayer> getMatchPlayers() {
         return matchPlayers;
     }
 
-    public void setMatchPlayers(Set<MatchPlayer> matchPlayers) {
+    public void setMatchPlayers(List<MatchPlayer> matchPlayers) {
         this.matchPlayers = matchPlayers;
+    }
+
+    public void setTeams(Set<Team> teams) {
+        this.teams = teams;
+    }
+
+    public void addTeam(Team team) {
+        this.teams.add(team);
+    }
+
+    public Set<Team> getTeams() {
+        return teams;
     }
 
     public Set<Innings> getInnings() {
