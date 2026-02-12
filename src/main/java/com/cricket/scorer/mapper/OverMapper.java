@@ -12,11 +12,12 @@ import java.util.List;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface OverMapper {
     
-    @Mapping(source = "innings.id", target = "inningsId")
+    // Map the full Innings -> InningsDTO (OverDTO defines inningsDTO property)
+    @Mapping(source = "innings", target = "inningsDTO")
     @Mapping(source = "bowler.id", target = "bowlerId")
     OverDTO toDto(Over over);
     
-    @Mapping(target = "innings", ignore = true)
+    @Mapping(target = "innings", source = "inningsDTO")
     @Mapping(target = "bowler", ignore = true)
     @Mapping(target = "balls", ignore = true)
     Over toEntity(OverDTO overDTO);

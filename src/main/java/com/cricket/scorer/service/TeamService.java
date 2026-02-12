@@ -10,6 +10,7 @@ import com.cricket.scorer.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +41,7 @@ public class TeamService {
     public TeamDTO updateTeam(Long id, TeamDTO teamDTO) {
         Team team = teamRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Team not found with id: " + id));
+        List<Player> players = new ArrayList<>();
         
         // Update only non-null fields from DTO
         if (teamDTO.getName() != null) {
@@ -52,15 +54,19 @@ public class TeamService {
             team.setLogoUrl(teamDTO.getLogoUrl());
         }
         if (teamDTO.getPlayers()!= null) {
-            for (var playerDTO : teamDTO.getPlayers()) {
-                Optional<PlayerDTO> playerOpt = playerService.getPlayerById(playerDTO.getId());
-                if (playerOpt.isEmpty()) {
-                    throw new RuntimeException("Player not found with id: " + playerDTO.getId());
-                } else {
-                    team.addPlayer(playerService.toEntity(playerOpt.get()));
-                }
-            }
+            teamDTO.getPlayers().stream()
+                // only consider players that are NOT already present on the team
+                .filter(playerDTO -> team.getPlayers().stream().noneMatch(p -> p.getId().equals(playerDTO.getId())))
+                .forEach(playerDTO -> {
+                    Optional<PlayerDTO> playerOpt = playerService.getPlayerById(playerDTO.getId());
+                    if (playerOpt.isEmpty()) {
+                        throw new RuntimeException("Player not found with id: " + playerDTO.getId());
+                    } else {
+                        players.add(playerService.toEntity(playerOpt.get()));
+                    }
+                });
         }
+        team.getPlayers().addAll(players);
         Team savedTeam = teamRepository.save(team);
         return teamMapper.toDto(savedTeam);
     }

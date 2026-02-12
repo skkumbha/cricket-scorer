@@ -3,7 +3,7 @@ set -euo pipefail
 # Starts a temporary Postgres container for local testing
 
 # Initialize Container Names, Credentials, DB Name, and Port
-CONTAINER_NAME="postgres-cricket-scorer"
+CONTAINER_NAME="cricket-db"
 POSTGRES_USER="postgres"
 POSTGRES_PASSWORD="dbP@ssW0rd"
 POSTGRES_DB="cricket_scorer_db"
@@ -13,6 +13,8 @@ if docker ps -a --format '{{.Names}}' | grep -qx "$CONTAINER_NAME"; then
   docker stop "$CONTAINER_NAME"
   docker rm "$CONTAINER_NAME"
 fi
+
+#docker network create cricket-network
 
 docker run -d \
   --name "$CONTAINER_NAME" \
