@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public class OverDTO {
     
     private Long id;
-    private Long inningsId;
+    private InningsDTO inningsDTO;
     private Integer overNumber;
     private Long bowlerId;
     private Integer runsConceded;
@@ -26,12 +26,12 @@ public class OverDTO {
         this.id = id;
     }
     
-    public Long getInningsId() {
-        return inningsId;
+    public InningsDTO getInningsDTO() {
+        return inningsDTO;
     }
     
-    public void setInningsId(Long inningsId) {
-        this.inningsId = inningsId;
+    public void setInningsDTO(InningsDTO inningsDTO) {
+        this.inningsDTO = inningsDTO;
     }
     
     public Integer getOverNumber() {

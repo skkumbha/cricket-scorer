@@ -1,6 +1,3 @@
-# Ignore Maven and build artifacts
-target/
-**/target/
 
 # Ignore local Maven repository
 .m2/

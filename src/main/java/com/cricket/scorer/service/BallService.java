@@ -1,15 +1,13 @@
 package com.cricket.scorer.service;
 
 import com.cricket.scorer.dto.BallDTO;
+import com.cricket.scorer.dto.InningsDTO;
 import com.cricket.scorer.mapper.BallMapper;
 import com.cricket.scorer.model.Ball;
 import com.cricket.scorer.model.Innings;
 import com.cricket.scorer.model.Over;
 import com.cricket.scorer.model.Player;
 import com.cricket.scorer.repository.BallRepository;
-import com.cricket.scorer.repository.InningsRepository;
-import com.cricket.scorer.repository.OverRepository;
-import com.cricket.scorer.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,18 +22,19 @@ public class BallService {
 
     @Autowired
     private BallRepository ballRepository;
-
     @Autowired
-    private OverRepository overRepository;
-
+    private OverService overService;
     @Autowired
-    private InningsRepository inningsRepository;
-
+    private InningsService inningsService;
     @Autowired
-    private PlayerRepository playerRepository;
-    
+    private PlayerService playerService;
     @Autowired
     private BallMapper ballMapper;
+    @Autowired
+    private ScoreService scoreService;
+
+
+
 
     public List<BallDTO> getAllBalls() {
         return ballMapper.toDtoList(ballRepository.findAll());
@@ -57,9 +56,11 @@ public class BallService {
                            Integer runsScored, Integer extras, String extraType, Boolean isWicket,
                            String wicketType, Long fielderId, Boolean isBoundary, Boolean isSix) {
 
-        Over over = overRepository.findById(overId)
+        Over over = overService.getOverById(overId)
+                .map(overService::toEntity)
                 .orElseThrow(() -> new RuntimeException("Over not found with id: " + overId));
-        Innings innings = inningsRepository.findById(inningsId)
+        Innings innings = inningsService.getInningsById(inningsId)
+                .map(inningsService::toEntity)
                 .orElseThrow(() -> new RuntimeException("Innings not found with id: " + inningsId));
 
         // Ensure the over belongs to the innings
@@ -67,13 +68,16 @@ public class BallService {
             throw new RuntimeException("Over " + overId + " does not belong to Innings " + inningsId);
         }
 
-        Player batsman = playerRepository.findById(batsmanId)
+        Player batsman = playerService.getPlayerById(batsmanId)
+                .map(playerService::toEntity)
                 .orElseThrow(() -> new RuntimeException("Batsman not found with id: " + batsmanId));
-        Player bowler = playerRepository.findById(bowlerId)
+        Player bowler = playerService.getPlayerById(bowlerId)
+                .map(playerService::toEntity)
                 .orElseThrow(() -> new RuntimeException("Bowler not found with id: " + bowlerId));
         Player fielder = null;
         if (fielderId != null) {
-            fielder = playerRepository.findById(fielderId)
+            fielder = playerService.getPlayerById(fielderId)
+                    .map(playerService::toEntity)
                     .orElseThrow(() -> new RuntimeException("Fielder not found with id: " + fielderId));
         }
 
@@ -110,7 +114,7 @@ public class BallService {
         if (saved.getBallNumber() != null && saved.getBallNumber().intValue() == BALLS_PER_OVER) {
             over.setMaiden(over.getRunsConceded() == 0);
         }
-        overRepository.save(over);
+        overService.updateOver(overId, over);
 
         // Update innings
         Integer inningsRuns = innings.getTotalRuns();
@@ -129,7 +133,9 @@ public class BallService {
             BigDecimal oversDecimal = BigDecimal.valueOf(fullOvers).add(BigDecimal.valueOf(ballsInCurrentOver).movePointLeft(1));
             innings.setTotalOvers(oversDecimal);
         }
-        inningsRepository.save(innings);
+        InningsDTO updatedInnings = inningsService.updateInnings(inningsId,innings);
+
+        scoreService.addScore(updatedInnings, updatedInnings.getMatchDTO(), updatedInnings.getBattingTeamDTO(), totalThisBall, extrasThisBall > 0);
 
         return ballMapper.toDto(saved);
     }
@@ -154,17 +160,20 @@ public class BallService {
         if (updates.getIsSix() != null) ball.setIsSix(updates.getIsSix());
 
         if (updates.getBatsman() != null && updates.getBatsman().getId() != null) {
-            Player batsman = playerRepository.findById(updates.getBatsman().getId())
+            Player batsman = playerService.getPlayerById(updates.getBatsman().getId())
+                    .map(playerService::toEntity)
                     .orElseThrow(() -> new RuntimeException("Batsman not found with id: " + updates.getBatsman().getId()));
             ball.setBatsman(batsman);
         }
         if (updates.getBowler() != null && updates.getBowler().getId() != null) {
-            Player bowler = playerRepository.findById(updates.getBowler().getId())
+            Player bowler = playerService.getPlayerById(updates.getBowler().getId())
+                    .map(playerService::toEntity)
                     .orElseThrow(() -> new RuntimeException("Bowler not found with id: " + updates.getBowler().getId()));
             ball.setBowler(bowler);
         }
         if (updates.getFielder() != null && updates.getFielder().getId() != null) {
-            Player fielder = playerRepository.findById(updates.getFielder().getId())
+            Player fielder = playerService.getPlayerById(updates.getFielder().getId())
+                    .map(playerService::toEntity)
                     .orElseThrow(() -> new RuntimeException("Fielder not found with id: " + updates.getFielder().getId()));
             ball.setFielder(fielder);
         }
@@ -186,7 +195,7 @@ public class BallService {
         over.setRunsConceded((prevOverRuns == null ? 0 : prevOverRuns) + deltaTotal);
         Integer prevOverWk = over.getWicketsTaken();
         over.setWicketsTaken((prevOverWk == null ? 0 : prevOverWk) + deltaWickets);
-        overRepository.save(over);
+        overService.updateOver(over.getId(), over);
 
         // Update innings
         Innings innings = saved.getInnings();
@@ -205,7 +214,7 @@ public class BallService {
             innings.setTotalOvers(oversDecimal);
         }
 
-        inningsRepository.save(innings);
+        inningsService.updateInnings(innings.getId(), innings);
 
         return ballMapper.toDto(saved);
     }
@@ -227,7 +236,7 @@ public class BallService {
             Integer prevOverWk = over.getWicketsTaken();
             over.setWicketsTaken((prevOverWk == null ? 0 : prevOverWk) - 1);
         }
-        overRepository.save(over);
+        overService.updateOver(over.getId(), over);
 
         Innings innings = ball.getInnings();
         Integer prevInnsRuns = innings.getTotalRuns();
@@ -238,7 +247,7 @@ public class BallService {
             Integer prevInnsWk = innings.getTotalWickets();
             innings.setTotalWickets((prevInnsWk == null ? 0 : prevInnsWk) - 1);
         }
-        inningsRepository.save(innings);
+        inningsService.updateInnings(innings.getId(), innings);
         ballRepository.delete(ball);
     }
 }

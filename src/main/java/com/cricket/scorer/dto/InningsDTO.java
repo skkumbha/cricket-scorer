@@ -6,10 +6,10 @@ import java.time.LocalDateTime;
 public class InningsDTO {
     
     private Long id;
-    private Long matchId;
+    private MatchDTO matchDTO;
     private Integer inningsNumber;
-    private Long battingTeamId;
-    private Long bowlingTeamId;
+    private TeamDTO battingTeamDTO;
+    private TeamDTO bowlingTeamDTO;
     private Integer totalRuns;
     private Integer totalWickets;
     private BigDecimal totalOvers;
@@ -30,12 +30,12 @@ public class InningsDTO {
         this.id = id;
     }
     
-    public Long getMatchId() {
-        return matchId;
+    public MatchDTO getMatchDTO() {
+        return matchDTO;
     }
     
-    public void setMatchId(Long matchId) {
-        this.matchId = matchId;
+    public void setMatchDTO(MatchDTO matchDTO) {
+        this.matchDTO = matchDTO;
     }
     
     public Integer getInningsNumber() {
@@ -46,20 +46,20 @@ public class InningsDTO {
         this.inningsNumber = inningsNumber;
     }
     
-    public Long getBattingTeamId() {
-        return battingTeamId;
+    public TeamDTO getBattingTeamDTO() {
+        return battingTeamDTO;
     }
     
-    public void setBattingTeamId(Long battingTeamId) {
-        this.battingTeamId = battingTeamId;
+    public void setBattingTeamDTO(TeamDTO battingTeamDTO) {
+        this.battingTeamDTO = battingTeamDTO;
     }
     
-    public Long getBowlingTeamId() {
-        return bowlingTeamId;
+    public TeamDTO getBowlingTeamDTO() {
+        return bowlingTeamDTO;
     }
     
-    public void setBowlingTeamId(Long bowlingTeamId) {
-        this.bowlingTeamId = bowlingTeamId;
+    public void setBowlingTeamDTO(TeamDTO bowlingTeamDTO) {
+        this.bowlingTeamDTO = bowlingTeamDTO;
     }
     
     public Integer getTotalRuns() {

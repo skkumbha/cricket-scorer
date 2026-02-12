@@ -1,0 +1,17 @@
+
+
+# Stage 1: runtime image using Temurin JRE 17
+FROM eclipse-temurin:17-jre
+
+ARG JAR_FILE="target/cricket-scorer-1.0.0.jar"
+WORKDIR /app
+
+# Copy the jar produced in the build stage
+COPY ${JAR_FILE} /app/app.jar
+
+# Expose the default Spring Boot port
+EXPOSE 8080
+EXPOSE 5005
+
+# Start the Spring Boot application
+ENTRYPOINT ["java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005","-jar", "/app/app.jar"]

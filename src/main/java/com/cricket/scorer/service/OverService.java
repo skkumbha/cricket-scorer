@@ -71,5 +71,10 @@ public class OverService {
                 .orElseThrow(() -> new RuntimeException("Over not found with id: " + id));
         overRepository.delete(over);
     }
+
+    public Over toEntity(OverDTO overDTO) {
+        return overMapper.toEntity(overDTO);
+    }
+
 }
 

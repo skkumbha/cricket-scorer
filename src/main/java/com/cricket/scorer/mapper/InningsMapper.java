@@ -12,14 +12,14 @@ import java.util.List;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface InningsMapper {
     
-    @Mapping(source = "match.id", target = "matchId")
-    @Mapping(source = "battingTeam.id", target = "battingTeamId")
-    @Mapping(source = "bowlingTeam.id", target = "bowlingTeamId")
+    @Mapping(source = "match", target = "matchDTO")
+    @Mapping(target = "battingTeamDTO", source = "battingTeam")
+    @Mapping(target = "bowlingTeamDTO", source = "bowlingTeam")
     InningsDTO toDto(Innings innings);
     
-    @Mapping(target = "match", ignore = true)
-    @Mapping(target = "battingTeam", ignore = true)
-    @Mapping(target = "bowlingTeam", ignore = true)
+    @Mapping(target = "match", source = "matchDTO")
+    @Mapping(source = "battingTeamDTO", target = "battingTeam")
+    @Mapping(source = "bowlingTeamDTO", target = "bowlingTeam")
     @Mapping(target = "overs", ignore = true)
     @Mapping(target = "balls", ignore = true)
     Innings toEntity(InningsDTO inningsDTO);
