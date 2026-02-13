@@ -3,6 +3,7 @@ package com.cricket.scorer.service;
 
 import com.cricket.scorer.dto.InningsDTO;
 import com.cricket.scorer.dto.MatchDTO;
+import com.cricket.scorer.dto.OverDTO;
 import com.cricket.scorer.dto.TeamDTO;
 import com.cricket.scorer.mapper.InningsMapper;
 import com.cricket.scorer.mapper.MatchMapper;
@@ -15,6 +16,8 @@ import com.cricket.scorer.model.Innings;
 import com.cricket.scorer.model.Match;
 import com.cricket.scorer.model.Team;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 
 @Service
 public class ScoreService {
@@ -29,12 +32,13 @@ public class ScoreService {
     TeamMapper teamMapper;
 
     @Transactional
-    public void addScore(InningsDTO inningsDTO, MatchDTO matchDTO, TeamDTO battingTeamDTO, Integer runs, Boolean isExtra) {
+    public void addScore(InningsDTO inningsDTO, MatchDTO matchDTO, TeamDTO battingTeamDTO, BigDecimal currOver, Integer runs, Boolean isExtra) {
       Score updated = scoreRepository.findByInningsIdAndTeamId(inningsDTO.getId(), battingTeamDTO.getId())
                 .map(existingScore -> {
                     existingScore.setId(existingScore.getId());
                     existingScore.setRuns(existingScore.getRuns() + runs);
                     existingScore.setExtras(existingScore.getExtras() + (isExtra ? runs : 0));
+                    existingScore.setOvers(currOver);
                     return existingScore;
                 })
                 .orElseGet(() -> {
@@ -44,6 +48,7 @@ public class ScoreService {
                     score.setTeam(teamMapper.toEntity(battingTeamDTO));
                     score.setRuns(runs);
                     score.setExtras(isExtra ? runs : 0);
+                    score.setOvers(currOver);
                     return score;
             });
         scoreRepository.save(updated);
@@ -62,6 +67,7 @@ public class ScoreService {
         score.setTeam(team);
         score.setRuns(0);
         score.setExtras(0);
+        score.setOvers(BigDecimal.ZERO);
         scoreRepository.save(score);
         return score.getRuns();
     }

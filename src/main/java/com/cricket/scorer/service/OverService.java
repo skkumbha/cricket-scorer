@@ -76,5 +76,9 @@ public class OverService {
         return overMapper.toEntity(overDTO);
     }
 
+    public OverDTO toDto(Over over) {
+        return overMapper.toDto(over);
+    }
+
 }
 

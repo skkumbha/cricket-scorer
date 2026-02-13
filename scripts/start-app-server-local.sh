@@ -6,6 +6,8 @@ DOCKERFILE=$PROJECT_DIR/Dockerfile-local
 JAR_PATH=$PROJECT_DIR/target/cricket-scorer-1.0.0.jar
 IMAGE_NAME=cricket-scorer-app-server:latest
 CONTAINER_NAME=cricket-scorer-app-server
+DOCKER_NETWORK=cricket-network-1
+
 
 # stop/remove existing container (ignore if not present)
 docker stop $CONTAINER_NAME || true
@@ -23,6 +25,7 @@ docker build -t $IMAGE_NAME -f "$DOCKERFILE" "$PROJECT_DIR"
 # run container
 docker run \
   --name $CONTAINER_NAME \
+  --network $DOCKER_NETWORK \
   -p 8080:8080 \
   -p 5005:5005 \
   -d $IMAGE_NAME

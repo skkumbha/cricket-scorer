@@ -1,7 +1,8 @@
 
 
 # Stage 1: runtime image using Temurin JRE 17
-FROM eclipse-temurin:17-jre
+#FROM eclipse-temurin:17-jre
+FROM cricket-scorer-app-server:latest
 
 ARG JAR_FILE="target/cricket-scorer-1.0.0.jar"
 WORKDIR /app

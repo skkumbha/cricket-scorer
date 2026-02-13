@@ -7,17 +7,19 @@ CONTAINER_NAME="cricket-db"
 POSTGRES_USER="postgres"
 POSTGRES_PASSWORD="dbP@ssW0rd"
 POSTGRES_DB="cricket_scorer_db"
-HOST_PORT=5432
+HOST_PORT=5433
+DOCKER_NETWORK="cricket-network-1"
 
 if docker ps -a --format '{{.Names}}' | grep -qx "$CONTAINER_NAME"; then
   docker stop "$CONTAINER_NAME"
   docker rm "$CONTAINER_NAME"
 fi
 
-#docker network create cricket-network
+docker network create "$DOCKER_NETWORK"
 
 docker run -d \
   --name "$CONTAINER_NAME" \
+  --network "$DOCKER_NETWORK" \
   -e POSTGRES_USER="$POSTGRES_USER" \
   -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
   -e POSTGRES_DB="$POSTGRES_DB" \
