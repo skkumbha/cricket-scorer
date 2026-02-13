@@ -56,6 +56,7 @@ public class BallService {
     public BallDTO createBall(Long overId, Long inningsId, Integer ballNumber, Long batsmanId, Long bowlerId,
                            Integer runsScored, Integer extras, String extraType, Boolean isWicket,
                            String wicketType, Long fielderId, Boolean isBoundary, Boolean isSix) {
+        BigDecimal oversDecimal = null;
 
         Over over = overService.getOverById(overId)
                 .map(overService::toEntity)
@@ -131,15 +132,19 @@ public class BallService {
             int fullOvers = over.getOverNumber() - 1;
             int ballsInCurrentOver = saved.getBallNumber();
             // Represent overs as e.g., 10.4 => 10 overs and 4 balls
-            BigDecimal oversDecimal = BigDecimal.valueOf(fullOvers).add(BigDecimal.valueOf(ballsInCurrentOver).movePointLeft(1));
+            oversDecimal = BigDecimal.valueOf(fullOvers).add(BigDecimal.valueOf(ballsInCurrentOver).movePointLeft(1));
+            if (extraType != null && (extraType.equalsIgnoreCase("wide") || extraType.equalsIgnoreCase("no_ball"))) {
+                // For wides and no-balls, the ball doesn't count towards over progression
+                oversDecimal = oversDecimal.subtract(BigDecimal.valueOf(0.1)); // Subtract 0.1 to negate the ball count
+            }
+            if (oversDecimal.movePointRight(1).intValue()%10 >= 6) {
+                // If we exceed 6 balls, roll over to next over
+                oversDecimal = BigDecimal.valueOf(over.getOverNumber()); // Move to next full over
+            }
             innings.setTotalOvers(oversDecimal);
         }
         InningsDTO updatedInnings = inningsService.updateInnings(inningsId,innings);
-        OverDTO overDTO = overService.toDto(over);
-        Double currOver = overDTO.getOverNumber() + (saved.getBallNumber() != null ? saved.getBallNumber() * 0.1 : 0);
-        currOver = extrasThisBall > 0 ? currOver - 0.1 : currOver; // If extra, don't count ball towards over progression
-
-        scoreService.addScore(updatedInnings, updatedInnings.getMatchDTO(), updatedInnings.getBattingTeamDTO(), BigDecimal.valueOf(currOver), totalThisBall, extrasThisBall > 0);
+        scoreService.addScore(updatedInnings, updatedInnings.getMatchDTO(), updatedInnings.getBattingTeamDTO(), oversDecimal, totalThisBall, extrasThisBall > 0);
 
         return ballMapper.toDto(saved);
     }
