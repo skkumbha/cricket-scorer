@@ -26,9 +26,14 @@ public class InningsController {
 
     @GetMapping("/{id}")
     public ResponseEntity<InningsDTO> getInningsById(@PathVariable Long id) {
-        return inningsService.getInningsById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        InningsDTO inningsDTO = inningsService.getInningsById(id);
+        if (inningsDTO != null) {
+            return ResponseEntity.ok(inningsDTO);
+        } else {
+           return ResponseEntity.notFound().build();
+        }
+
+
     }
 
     @GetMapping("/match/{matchId}")

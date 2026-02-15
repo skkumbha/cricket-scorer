@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface ScoreRepository extends JpaRepository<Score, Long> {
-    public Optional<Score> findByInningsIdAndTeamId(Long inningsId, Long teamId);
+    public Optional<Score> findByInningsId(Long inningsId);
 }

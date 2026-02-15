@@ -99,4 +99,9 @@ public class Team {
         players.add(player);
         player.getTeams().add(this);
     }
+
+    public void removePlayer(Player player) {
+        players.remove(player);
+        player.getTeams().remove(this);
+    }
 }

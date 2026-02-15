@@ -8,8 +8,8 @@ public class InningsDTO {
     private Long id;
     private MatchDTO matchDTO;
     private Integer inningsNumber;
-    private TeamDTO battingTeamDTO;
-    private TeamDTO bowlingTeamDTO;
+    private MatchTeamDTO battingTeamDTO;
+    private MatchTeamDTO bowlingTeamDTO;
     private Integer totalRuns;
     private Integer totalWickets;
     private BigDecimal totalOvers;
@@ -46,19 +46,19 @@ public class InningsDTO {
         this.inningsNumber = inningsNumber;
     }
     
-    public TeamDTO getBattingTeamDTO() {
+    public MatchTeamDTO getBattingTeamDTO() {
         return battingTeamDTO;
     }
     
-    public void setBattingTeamDTO(TeamDTO battingTeamDTO) {
+    public void setBattingTeamDTO(MatchTeamDTO battingTeamDTO) {
         this.battingTeamDTO = battingTeamDTO;
     }
     
-    public TeamDTO getBowlingTeamDTO() {
+    public MatchTeamDTO getBowlingTeamDTO() {
         return bowlingTeamDTO;
     }
     
-    public void setBowlingTeamDTO(TeamDTO bowlingTeamDTO) {
+    public void setBowlingTeamDTO(MatchTeamDTO bowlingTeamDTO) {
         this.bowlingTeamDTO = bowlingTeamDTO;
     }
     

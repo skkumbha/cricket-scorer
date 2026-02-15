@@ -13,13 +13,9 @@ import java.util.List;
 public interface InningsMapper {
     
     @Mapping(source = "match", target = "matchDTO")
-    @Mapping(target = "battingTeamDTO", source = "battingTeam")
-    @Mapping(target = "bowlingTeamDTO", source = "bowlingTeam")
     InningsDTO toDto(Innings innings);
     
     @Mapping(target = "match", source = "matchDTO")
-    @Mapping(source = "battingTeamDTO", target = "battingTeam")
-    @Mapping(source = "bowlingTeamDTO", target = "bowlingTeam")
     @Mapping(target = "overs", ignore = true)
     @Mapping(target = "balls", ignore = true)
     Innings toEntity(InningsDTO inningsDTO);

@@ -68,7 +68,7 @@ curl -X POST http://localhost:8080/api/teams \
 - `POST /api/players` - Create a new player
 - `PUT /api/players/{id}` - Update a player
 - `DELETE /api/players/{id}` - Delete a player
-- `GET /api/players/team/{teamId}` - Get players by team
+- `GET /api/players/team/{teamDTO}` - Get players by team
 - `GET /api/players/role/{role}` - Get players by role
 - `GET /api/players/search?name={name}` - Search players by name
 
@@ -76,7 +76,7 @@ curl -X POST http://localhost:8080/api/teams \
 ```bash
 curl -X POST http://localhost:8080/api/players \
   -H "Content-Type: application/json" \
-  -d '{"name":"Virat Kohli","teamId":1,"role":"Batsman","jerseyNumber":18}'
+  -d '{"name":"Virat Kohli","teamDTO":1,"role":"Batsman","jerseyNumber":18}'
 ```
 
 ### Matches
@@ -87,7 +87,7 @@ curl -X POST http://localhost:8080/api/players \
 - `PUT /api/matches/{id}` - Update a match
 - `DELETE /api/matches/{id}` - Delete a match
 - `GET /api/matches/status/{status}` - Get matches by status
-- `GET /api/matches/team/{teamId}` - Get matches by team
+- `GET /api/matches/team/{teamDTO}` - Get matches by team
 
 **Example Request:**
 ```bash
@@ -108,7 +108,7 @@ curl -X POST http://localhost:8080/api/matches \
 ### Player
 - `id` (Long): Unique identifier
 - `name` (String): Player name (required)
-- `teamId` (Long): Associated team ID (required)
+- `teamDTO` (Long): Associated team ID (required)
 - `role` (String): Player role (Batsman, Bowler, All-rounder, Wicket-keeper)
 - `jerseyNumber` (Integer): Jersey number
 - `createdAt` (LocalDateTime): Creation timestamp

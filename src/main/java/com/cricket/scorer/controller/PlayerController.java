@@ -2,6 +2,7 @@ package com.cricket.scorer.controller;
 
 import com.cricket.scorer.dto.PlayerDTO;
 import com.cricket.scorer.service.PlayerService;
+import com.cricket.scorer.service.TeamService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,8 @@ public class PlayerController {
 
     @Autowired
     private PlayerService playerService;
+    @Autowired
+    private TeamService teamService;
 
     @GetMapping("/{id}")
     public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable Long id) {
@@ -27,6 +30,14 @@ public class PlayerController {
     @PostMapping
     public ResponseEntity<PlayerDTO> createPlayer(@Valid @RequestBody PlayerDTO playerDTO) {
         PlayerDTO createdPlayer = playerService.createPlayer(playerDTO);
+        if(playerDTO.getTeamDTOs() != null) {
+            playerDTO.getTeamDTOs().forEach(teamDTO -> {
+                teamService.getTeamById(teamDTO.getId()).ifPresent(team -> {
+                    team.getPlayers().add(createdPlayer);
+                    teamService.updateTeam(team.getId(), team);
+                });
+            });
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPlayer);
     }
 

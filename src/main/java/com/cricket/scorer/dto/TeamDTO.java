@@ -13,6 +13,7 @@ public class TeamDTO {
     private String logoUrl;
     private LocalDateTime createdAt;
     private List<PlayerDTO> players;
+    private List<Long> playerIds;
     
     // Constructors
     public TeamDTO() {
@@ -72,5 +73,11 @@ public class TeamDTO {
     }
     public void setPlayers(List<PlayerDTO> players) {
         this.players = players;
+    }
+    public List<Long> getPlayerIds() {
+        return playerIds;
+    }
+    public void setPlayerIds(List<Long> playerIds) {
+        this.playerIds = playerIds;
     }
 }

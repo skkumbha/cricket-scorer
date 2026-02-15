@@ -5,7 +5,6 @@ import com.cricket.scorer.dto.TeamDTO;
 import com.cricket.scorer.mapper.TeamMapper;
 import com.cricket.scorer.model.Player;
 import com.cricket.scorer.model.Team;
-import com.cricket.scorer.model.TeamPlayer;
 import com.cricket.scorer.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +29,10 @@ public class TeamService {
 
     public Optional<TeamDTO> getTeamById(Long id) {
         return teamRepository.findById(id).map(teamMapper::toDto);
+    }
+
+    public Team getTeamEntityById(Long id) {
+        return teamRepository.findById(id).get();
     }
 
     public TeamDTO createTeam(TeamDTO teamDTO) {
