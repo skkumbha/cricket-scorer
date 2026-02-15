@@ -22,6 +22,10 @@ public class PlayerService {
         return playerRepository.findById(id).map(playerMapper::toDto);
     }
 
+    public Optional<Player> getPlayerEntityById(Long id) {
+        return playerRepository.findById(id);
+    }
+
     public PlayerDTO createPlayer(PlayerDTO playerDTO) {
         Player player = playerMapper.toEntity(playerDTO);
         Player savedPlayer = playerRepository.save(player);

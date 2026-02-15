@@ -2,6 +2,7 @@ package com.cricket.scorer.service;
 
 import com.cricket.scorer.dto.PlayerDTO;
 import com.cricket.scorer.mapper.PlayerMapper;
+import com.cricket.scorer.model.MatchPlayer;
 import com.cricket.scorer.repository.MatchPlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,5 +29,9 @@ public class MatchPlayerService {
                 .filter(playerOpt -> playerOpt.isPresent())
                 .map(playerOpt -> playerOpt.get())
                 .toList();
+    }
+
+    public void saveMatchPlayer(MatchPlayer matchPlayer) {
+        matchPlayerRepository.save(matchPlayer);
     }
 }

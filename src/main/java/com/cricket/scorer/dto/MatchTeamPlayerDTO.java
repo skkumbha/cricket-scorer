@@ -1,75 +1,54 @@
 package com.cricket.scorer.dto;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
-public class PlayerDTO {
-    
+public class MatchTeamPlayerDTO {
+
     private Long id;
     private String fullName;
-    
     private Integer jerseyNumber;
     private String role;
     private LocalDateTime createdAt;
-    private Set<TeamDTO> teamDTOs;
-    
-    // Constructors
-    public PlayerDTO() {
-    }
-    
-    public PlayerDTO(Long id, String fullName, Integer jerseyNumber, String role, LocalDateTime createdAt) {
+
+    public MatchTeamPlayerDTO(Long id, String fullName, Integer jerseyNumber,
+                              String role, LocalDateTime createdAt) {
         this.id = id;
         this.fullName = fullName;
         this.jerseyNumber = jerseyNumber;
         this.role = role;
         this.createdAt = createdAt;
+
     }
-    
-    // Getters and Setters
-    public Long getId() {
-        return id;
+
+    public Long getId(){
+        return this.id;
     }
-    
     public void setId(Long id) {
         this.id = id;
     }
-    
     public String getFullName() {
-        return fullName;
+        return this.fullName;
     }
-    
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
-    
     public Integer getJerseyNumber() {
-        return jerseyNumber;
+        return this.jerseyNumber;
     }
-    
     public void setJerseyNumber(Integer jerseyNumber) {
         this.jerseyNumber = jerseyNumber;
     }
-    
     public String getRole() {
-        return role;
+        return this.role;
     }
-    
     public void setRole(String role) {
         this.role = role;
     }
-    
     public LocalDateTime getCreatedAt() {
-        return createdAt;
+        return this.createdAt;
     }
-    
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Set<TeamDTO> getTeamDTOs() {
-        return teamDTOs;
-    }
-    public void setTeamDTO(Set<TeamDTO> teamDTOs) {
-        this.teamDTOs = teamDTOs;
-    }
 }

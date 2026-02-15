@@ -59,11 +59,9 @@ public class BallService {
         BigDecimal oversDecimal = null;
 
         Over over = overService.getOverById(overId)
-                .map(overService::toEntity)
-                .orElseThrow(() -> new RuntimeException("Over not found with id: " + overId));
-        Innings innings = inningsService.getInningsById(inningsId)
-                .map(inningsService::toEntity)
-                .orElseThrow(() -> new RuntimeException("Innings not found with id: " + inningsId));
+                .map(overService::toEntity).get();
+        InningsDTO inningsDTO = inningsService.getInningsById(inningsId);
+        Innings innings = inningsService.toEntity(inningsDTO);
 
         // Ensure the over belongs to the innings
         if (!over.getInnings().getId().equals(innings.getId())) {
@@ -71,34 +69,16 @@ public class BallService {
         }
 
         Player batsman = playerService.getPlayerById(batsmanId)
-                .map(playerService::toEntity)
-                .orElseThrow(() -> new RuntimeException("Batsman not found with id: " + batsmanId));
+                .map(playerService::toEntity).get();
         Player bowler = playerService.getPlayerById(bowlerId)
-                .map(playerService::toEntity)
-                .orElseThrow(() -> new RuntimeException("Bowler not found with id: " + bowlerId));
+                .map(playerService::toEntity).get();
         Player fielder = null;
         if (fielderId != null) {
             fielder = playerService.getPlayerById(fielderId)
-                    .map(playerService::toEntity)
-                    .orElseThrow(() -> new RuntimeException("Fielder not found with id: " + fielderId));
+                    .map(playerService::toEntity).get();
         }
 
-        Ball ball = new Ball();
-        ball.setOver(over);
-        ball.setInnings(innings);
-        ball.setBallNumber(ballNumber);
-        ball.setBatsman(batsman);
-        ball.setBowler(bowler);
-        if (runsScored != null) ball.setRunsScored(runsScored);
-        if (extras != null) ball.setExtras(extras);
-        ball.setExtraType(extraType);
-        if (isWicket != null) ball.setIsWicket(isWicket);
-        ball.setWicketType(wicketType);
-        if (fielder != null) ball.setFielder(fielder);
-        if (isBoundary != null) ball.setIsBoundary(isBoundary);
-        if (isSix != null) ball.setIsSix(isSix);
-
-        Ball saved = ballRepository.save(ball);
+        Ball saved = saveNewBall(ballNumber, runsScored, extras, extraType, isWicket, wicketType, isBoundary, isSix, over, innings, batsman, bowler, fielder);
 
         // Update aggregates on Over and Innings
         int runsThisBall = (saved.getRunsScored() == null ? 0 : saved.getRunsScored());
@@ -144,9 +124,29 @@ public class BallService {
             innings.setTotalOvers(oversDecimal);
         }
         InningsDTO updatedInnings = inningsService.updateInnings(inningsId,innings);
-        scoreService.addScore(updatedInnings, updatedInnings.getMatchDTO(), updatedInnings.getBattingTeamDTO(), oversDecimal, totalThisBall, extrasThisBall > 0);
+        scoreService.addScore(updatedInnings, updatedInnings.getMatchDTO(), oversDecimal, totalThisBall, extrasThisBall > 0);
 
         return ballMapper.toDto(saved);
+    }
+
+    private Ball saveNewBall(Integer ballNumber, Integer runsScored, Integer extras, String extraType, Boolean isWicket, String wicketType, Boolean isBoundary, Boolean isSix, Over over, Innings innings, Player batsman, Player bowler, Player fielder) {
+        Ball ball = new Ball();
+        ball.setOver(over);
+        ball.setInnings(innings);
+        ball.setBallNumber(ballNumber);
+        ball.setBatsman(batsman);
+        ball.setBowler(bowler);
+        if (runsScored != null) ball.setRunsScored(runsScored);
+        if (extras != null) ball.setExtras(extras);
+        ball.setExtraType(extraType);
+        if (isWicket != null) ball.setIsWicket(isWicket);
+        ball.setWicketType(wicketType);
+        if (fielder != null) ball.setFielder(fielder);
+        if (isBoundary != null) ball.setIsBoundary(isBoundary);
+        if (isSix != null) ball.setIsSix(isSix);
+
+        Ball saved = ballRepository.save(ball);
+        return saved;
     }
 
     public BallDTO updateBall(Long id, Ball updates) {

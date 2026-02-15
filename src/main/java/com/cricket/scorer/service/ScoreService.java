@@ -3,8 +3,6 @@ package com.cricket.scorer.service;
 
 import com.cricket.scorer.dto.InningsDTO;
 import com.cricket.scorer.dto.MatchDTO;
-import com.cricket.scorer.dto.OverDTO;
-import com.cricket.scorer.dto.TeamDTO;
 import com.cricket.scorer.mapper.InningsMapper;
 import com.cricket.scorer.mapper.MatchMapper;
 import com.cricket.scorer.mapper.TeamMapper;
@@ -14,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.cricket.scorer.model.Innings;
 import com.cricket.scorer.model.Match;
-import com.cricket.scorer.model.Team;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -32,8 +29,8 @@ public class ScoreService {
     TeamMapper teamMapper;
 
     @Transactional
-    public void addScore(InningsDTO inningsDTO, MatchDTO matchDTO, TeamDTO battingTeamDTO, BigDecimal currOver, Integer runs, Boolean isExtra) {
-      Score updated = scoreRepository.findByInningsIdAndTeamId(inningsDTO.getId(), battingTeamDTO.getId())
+    public void addScore(InningsDTO inningsDTO, MatchDTO matchDTO, BigDecimal currOver, Integer runs, Boolean isExtra) {
+      Score updated = scoreRepository.findByInningsId(inningsDTO.getId())
                 .map(existingScore -> {
                     existingScore.setId(existingScore.getId());
                     existingScore.setRuns(existingScore.getRuns() + runs);
@@ -45,7 +42,6 @@ public class ScoreService {
                     Score score = new Score();
                     score.setInnings(inningsMapper.toEntity(inningsDTO));
                     score.setMatch(matchMapper.toEntity(matchDTO));
-                    score.setTeam(teamMapper.toEntity(battingTeamDTO));
                     score.setRuns(runs);
                     score.setExtras(isExtra ? runs : 0);
                     score.setOvers(currOver);
@@ -54,17 +50,16 @@ public class ScoreService {
         scoreRepository.save(updated);
     }
 
-    public Integer getScore(Long inningsId, Long teamId) {
-        return scoreRepository.findByInningsIdAndTeamId(inningsId, teamId)
+    public Integer getScore(Long inningsId) {
+        return scoreRepository.findByInningsId(inningsId)
                 .map(Score::getRuns)
                 .orElse(0);
     }
 
-    public Integer createScore(Innings innings, Match match, Team team) {
+    public Integer createScore(Innings innings, Match match) {
         Score score = new Score();
         score.setInnings(innings);
         score.setMatch(match);
-        score.setTeam(team);
         score.setRuns(0);
         score.setExtras(0);
         score.setOvers(BigDecimal.ZERO);

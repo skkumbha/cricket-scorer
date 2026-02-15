@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "score", uniqueConstraints = @UniqueConstraint(columnNames = {"match_id", "team_id", "innings_id"}))
+@Table(name = "score", uniqueConstraints = @UniqueConstraint(columnNames = {"match_id", "innings_id"}))
 public class Score {
 
     @Id
@@ -16,10 +16,6 @@ public class Score {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "match_id", nullable = false)
     private Match match;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id", nullable = false)
-    private Team team;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "innings_id", nullable = false)
@@ -49,9 +45,8 @@ public class Score {
     public Score() {
     }
 
-    public Score(Match match, Team team, Innings innings) {
+    public Score(Match match, Innings innings) {
         this.match = match;
-        this.team = team;
         this.innings = innings;
     }
 
@@ -77,14 +72,6 @@ public class Score {
 
     public void setMatch(Match match) {
         this.match = match;
-    }
-
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
     }
 
     public Innings getInnings() {
