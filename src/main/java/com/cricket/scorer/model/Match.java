@@ -57,12 +57,6 @@ public class Match {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<MatchTeam> matchTeams = new HashSet<>();
-
-    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MatchPlayer> matchPlayers = new ArrayList<>();
-
-    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Innings> innings = new HashSet<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -209,26 +203,6 @@ public class Match {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public Set<MatchTeam> getMatchTeams() {
-        return matchTeams;
-    }
-
-    public void setMatchTeams(Set<MatchTeam> matchTeams) {
-        this.matchTeams = matchTeams;
-    }
-
-    public void addMatchPlayer(MatchPlayer matchPlayer) {
-        this.matchPlayers.add(matchPlayer);
-    }
-
-    public List<MatchPlayer> getMatchPlayers() {
-        return matchPlayers;
-    }
-
-    public void setMatchPlayers(List<MatchPlayer> matchPlayers) {
-        this.matchPlayers = matchPlayers;
     }
 
     public void setTeams(Set<Team> teams) {

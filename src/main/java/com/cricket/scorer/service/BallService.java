@@ -2,7 +2,6 @@ package com.cricket.scorer.service;
 
 import com.cricket.scorer.dto.BallDTO;
 import com.cricket.scorer.dto.InningsDTO;
-import com.cricket.scorer.dto.OverDTO;
 import com.cricket.scorer.mapper.BallMapper;
 import com.cricket.scorer.model.Ball;
 import com.cricket.scorer.model.Innings;
@@ -124,7 +123,7 @@ public class BallService {
             innings.setTotalOvers(oversDecimal);
         }
         InningsDTO updatedInnings = inningsService.updateInnings(inningsId,innings);
-        scoreService.addScore(updatedInnings, updatedInnings.getMatchDTO(), oversDecimal, totalThisBall, extrasThisBall > 0);
+        scoreService.updateScore(updatedInnings, updatedInnings.getMatchDTO(), oversDecimal, totalThisBall, extrasThisBall > 0);
 
         return ballMapper.toDto(saved);
     }

@@ -23,7 +23,7 @@ public class MatchDTO {
     private String resultMargin;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<TeamDTO> teams;
+    private List<MatchTeamDTO> teams;
     
     // Constructors
     public MatchDTO() {
@@ -142,15 +142,15 @@ public class MatchDTO {
         this.updatedAt = updatedAt;
     }
 
-    public List<TeamDTO> getTeams() {
+    public List<MatchTeamDTO> getTeams() {
         return teams;
     }
 
-    public void setTeams(List<TeamDTO> teams) {
+    public void setTeams(List<MatchTeamDTO> teams) {
         this.teams = teams;
     }
 
-    public List<TeamDTO> addTeam(TeamDTO team) {
+    public List<MatchTeamDTO> addTeam(MatchTeamDTO team) {
         this.teams.add(team);
         return this.teams;
     }

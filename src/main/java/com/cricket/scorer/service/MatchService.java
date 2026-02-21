@@ -2,11 +2,10 @@ package com.cricket.scorer.service;
 
 import com.cricket.scorer.dto.MatchDTO;
 import com.cricket.scorer.mapper.MatchMapper;
+import com.cricket.scorer.mapper.MatchTeamMapper;
 import com.cricket.scorer.mapper.PlayerMapper;
-import com.cricket.scorer.mapper.TeamMapper;
 import com.cricket.scorer.model.Match;
 import com.cricket.scorer.model.MatchPlayer;
-import com.cricket.scorer.model.MatchTeam;
 import com.cricket.scorer.model.Team;
 import com.cricket.scorer.repository.MatchRepository;
 import org.slf4j.Logger;
@@ -30,7 +29,7 @@ public class MatchService {
     @Autowired
     private PlayerService playerService;
     @Autowired
-    private TeamMapper teamMapper;
+    private MatchTeamMapper teamMapper;
     @Autowired
     private PlayerMapper playerMapper;
     @Autowired
@@ -50,11 +49,15 @@ public class MatchService {
         matchDTO.getTeams().forEach(teamDTO -> {
             teamDTO.setPlayers(matchPlayerService.getPlayersByMatchIdAndTeamId(id, teamDTO.getId()));
         });
-        return matchDTO != null ? Optional.of(matchDTO) : Optional.empty();
+        return Optional.of(matchDTO);
+    }
+
+    public Match getMatchEntityById(Long id) {
+        return matchRepository.findById(id).orElseThrow(() -> new RuntimeException("Match not found with id: " + id));
     }
 
     public MatchDTO createMatch(MatchDTO matchDTO) {
-        Match match = matchMapper.toEntity(matchDTO);
+        Match match = toEntity(matchDTO);
         Set<Team> teams = matchDTO.getTeams().stream()
                 .map(teamDTO -> teamService.getTeamEntityById(teamDTO.getId()))
                 .collect(Collectors.toSet());
@@ -68,7 +71,12 @@ public class MatchService {
     public MatchDTO updateMatch(Long id, MatchDTO matchDTO) {
         Match match = matchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Match not found with id: " + id));
-        
+        updateMatchObject(matchDTO, match);
+        Match savedMatch = matchRepository.save(match);
+        return matchMapper.toDto(savedMatch);
+    }
+
+    private void updateMatchObject(MatchDTO matchDTO, Match match) {
         if (matchDTO.getMatchName() != null) {
             match.setMatchName(matchDTO.getMatchName());
         }
@@ -84,26 +92,29 @@ public class MatchService {
         if (matchDTO.getStatus() != null) {
             match.setStatus(matchDTO.getStatus());
         }
+        if (matchDTO.getTournamentId() != null) {
+            match.setTournamentId(matchDTO.getTournamentId());
+        }
+        if (matchDTO.getTossWinnerTeamId() != null) {
+            match.setTossWinnerTeamId(matchDTO.getTossWinnerTeamId());
+        }
+        if (matchDTO.getTossDecision() != null) {
+            match.setTossDecision(matchDTO.getTossDecision());
+        }
         if (matchDTO.getWinnerTeamId() != null) {
             match.setWinnerTeamId(matchDTO.getWinnerTeamId());
         }
-        if (matchDTO.getTeams() != null) {
-            matchDTO.getTeams().forEach(teamDTO -> {
-                Optional<Team> team = teamService.getTeamById(teamDTO.getId()).map(teamMapper::toEntity);
-                match.addTeam(team.get());
-                teamDTO.getPlayers().forEach(playerDTO -> {
-                    MatchPlayer matchPlayer = new MatchPlayer();
-                    matchPlayer.setMatch(match);
-                    matchPlayer.setTeam(team.get());
-                    matchPlayer.setPlayer(playerService.getPlayerById(playerDTO.getId()).map(playerMapper::toEntity).get());
-                    match.addMatchPlayer(matchPlayer);
-                });
-            });
+        if (matchDTO.getResultType() != null) {
+            match.setResultType(matchDTO.getResultType());
         }
-
-        
-        Match savedMatch = matchRepository.save(match);
-        return matchMapper.toDto(savedMatch);
+        if (matchDTO.getResultMargin() != null) {
+            match.setResultMargin(matchDTO.getResultMargin());
+        }
+        if (matchDTO.getTeams() != null) {
+            Set<Team> teams = matchDTO.getTeams().stream().map(teamDTO -> teamService.getTeamEntityById(teamDTO.getId()))
+                    .collect(Collectors.toSet());
+            match.setTeams(teams);
+        }
     }
 
     public void deleteMatch(Long id) {
@@ -122,27 +133,39 @@ public class MatchService {
         return List.of();
     }
 
-    private void saveMatchTeam(MatchDTO matchDTO) {
-        matchDTO.getTeams().forEach(team -> {
-            MatchTeam matchTeam = new MatchTeam();
-            matchTeam.setTeam(teamMapper.toEntity(team));
-            matchTeam.setMatch(matchMapper.toEntity(matchDTO));
-            matchTeamService.saveMatchTeam(matchTeam);
-            logger.info("Saved MatchTeam: Match ID = {}, Team ID = {}", matchDTO.getId(), team.getId());
-        });
-
-    }
-
     private void saveMatchPlayer(MatchDTO matchDTO, Match savedMatch) {
         matchDTO.getTeams().forEach(team -> {
-            team.getPlayerIds().forEach(player -> {
+        List<MatchPlayer> matchPlayers =    team.getPlayers().stream().map(player -> {
                 MatchPlayer matchPlayer = new MatchPlayer();
                 matchPlayer.setMatch(savedMatch);
-                matchPlayer.setTeam(teamMapper.toEntity(team));
-                matchPlayer.setPlayer(playerService.getPlayerEntityById(player).get());
-                matchPlayerService.saveMatchPlayer(matchPlayer);
-                logger.info("Saved MatchPlayer: Match ID = {}, Team ID = {}, Player ID = {}", matchDTO.getId(), team.getId(), player);
-            });
+                matchPlayer.setTeam(savedMatch.getTeams().stream().filter(t -> t.getId().equals(team.getId())).findFirst().get());
+                matchPlayer.setPlayer(playerService.getPlayerEntityById(player.getId()).get());
+                logger.info("Created MatchPlayer: Match ID = {}, Team ID = {}, Player ID = {}", matchDTO.getId(), team.getId(), player);
+                return matchPlayer;
+            }).toList();
+            matchPlayerService.saveMatchPlayers(matchPlayers);
         });
+    }
+
+    private Match toEntity(MatchDTO matchDTO) {
+        Match match = new Match();
+        match.setId(matchDTO.getId());
+        match.setMatchName(matchDTO.getMatchName());
+        match.setMatchType(matchDTO.getMatchType());
+        match.setLocation(matchDTO.getLocation());
+        match.setStartTime(matchDTO.getStartTime());
+        match.setStatus(matchDTO.getStatus());
+        match.setWinnerTeamId(matchDTO.getWinnerTeamId());
+        match.setTournamentId(matchDTO.getTournamentId());
+        match.setTossWinnerTeamId(matchDTO.getTossWinnerTeamId());
+        match.setTossDecision(matchDTO.getTossDecision());
+        match.setResultType(matchDTO.getResultType());
+        match.setResultMargin(matchDTO.getResultMargin());
+        match.setCreatedAt(matchDTO.getCreatedAt());
+        match.setUpdatedAt(matchDTO.getUpdatedAt());
+        Set<Team> teams = matchDTO.getTeams().stream().map(teamDTO ->
+           teamService.getTeamEntityById(teamDTO.getId())).collect(Collectors.toSet());
+        match.setTeams(teams);
+        return match;
     }
 }
