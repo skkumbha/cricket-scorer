@@ -32,6 +32,8 @@ public class BallService {
     private BallMapper ballMapper;
     @Autowired
     private ScoreService scoreService;
+    @Autowired
+    private PlayerScoreService playerScoreService;
 
 
 
@@ -124,6 +126,7 @@ public class BallService {
         }
         InningsDTO updatedInnings = inningsService.updateInnings(inningsId,innings);
         scoreService.updateScore(updatedInnings, updatedInnings.getMatchDTO(), oversDecimal, totalThisBall, extrasThisBall > 0);
+        playerScoreService.updatePlayerScore(ballMapper.toDto(saved));
 
         return ballMapper.toDto(saved);
     }
