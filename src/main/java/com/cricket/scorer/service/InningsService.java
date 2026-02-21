@@ -52,6 +52,10 @@ public class InningsService {
         return getInningsDTO(innings.getMatch().getId(), innings);
     }
 
+    public Innings getEntityById(Long id) {
+        return inningsRepository.findById(id).get();
+    }
+
     public List<InningsDTO> getInningsByMatchId(Long matchId) {
 
         return inningsRepository.findByMatchIdOrderByInningsNumber(matchId)
@@ -90,15 +94,9 @@ public class InningsService {
     }
 
     public InningsDTO createInnings(Long matchId, Integer inningsNumber, Long battingTeamId, Long bowlingTeamId) {
-        Match match = matchService.getMatchById(matchId)
-                .map(matchMapper::toEntity)
-                .orElseThrow(() -> new RuntimeException("Match not found with id: " + matchId));
-        Team batting = teamService.getTeamById(battingTeamId)
-                .map(teamMapper::toEntity)
-                .orElseThrow(() -> new RuntimeException("Batting team not found with id: " + battingTeamId));
-        Team bowling = teamService.getTeamById(bowlingTeamId)
-                .map(teamMapper::toEntity)
-                .orElseThrow(() -> new RuntimeException("Bowling team not found with id: " + bowlingTeamId));
+        Match match = matchService.getMatchEntityById(matchId);
+        Team batting = teamService.getTeamEntityById(battingTeamId);
+        Team bowling = teamService.getTeamEntityById(bowlingTeamId);
 
         Innings innings = new Innings(match, inningsNumber, batting, bowling);
         Innings savedInnings = inningsRepository.save(innings);

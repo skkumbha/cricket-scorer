@@ -1,5 +1,6 @@
 package com.cricket.scorer.service;
 
+import com.cricket.scorer.dto.MatchTeamPlayerDTO;
 import com.cricket.scorer.dto.PlayerDTO;
 import com.cricket.scorer.mapper.PlayerMapper;
 import com.cricket.scorer.model.MatchPlayer;
@@ -22,16 +23,25 @@ public class MatchPlayerService {
     private PlayerMapper playerMapper;
 
 
-    public List<PlayerDTO> getPlayersByMatchIdAndTeamId(Long matchId, Long teamId) {
+    public List<MatchTeamPlayerDTO> getPlayersByMatchIdAndTeamId(Long matchId, Long teamId) {
        return matchPlayerRepository.findByMatchIdAndTeamId(matchId, teamId)
                 .stream()
-                .map(mp -> playerService.getPlayerById(mp.getPlayer().getId()))
-                .filter(playerOpt -> playerOpt.isPresent())
-                .map(playerOpt -> playerOpt.get())
+                .map(mp ->  {
+                    MatchTeamPlayerDTO dto = new MatchTeamPlayerDTO();
+                    dto.setId(mp.getPlayer().getId());
+                    dto.setFullName(mp.getPlayer().getFullName());
+                    dto.setRole(mp.getPlayer().getRole());
+                    dto.setJerseyNumber(mp.getPlayer().getJerseyNumber());
+                    return dto;
+                })
                 .toList();
     }
 
     public void saveMatchPlayer(MatchPlayer matchPlayer) {
         matchPlayerRepository.save(matchPlayer);
+    }
+
+    public void saveMatchPlayers(List<MatchPlayer> matchPlayers) {
+        matchPlayerRepository.saveAll(matchPlayers);
     }
 }

@@ -10,6 +10,9 @@ public class MatchTeamPlayerDTO {
     private String role;
     private LocalDateTime createdAt;
 
+    public MatchTeamPlayerDTO() {
+    }
+
     public MatchTeamPlayerDTO(Long id, String fullName, Integer jerseyNumber,
                               String role, LocalDateTime createdAt) {
         this.id = id;

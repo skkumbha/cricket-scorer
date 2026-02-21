@@ -8,8 +8,6 @@ public class MatchTeamDTO {
     private Long id;
     private String name;
     private String shortName;
-    private String logoUrl;
-    private LocalDateTime createdAt;
     private List<MatchTeamPlayerDTO> players;
 
     public void setId(Long id) {
@@ -17,6 +15,18 @@ public class MatchTeamDTO {
     }
     public Long getId() {
         return this.id;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public String getName() {
+        return this.name;
+    }
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+    public String getShortName() {
+        return this.shortName;
     }
     public void setPlayers(List<MatchTeamPlayerDTO> players) {
         this.players = players;

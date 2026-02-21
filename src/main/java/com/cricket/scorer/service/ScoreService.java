@@ -29,7 +29,7 @@ public class ScoreService {
     TeamMapper teamMapper;
 
     @Transactional
-    public void addScore(InningsDTO inningsDTO, MatchDTO matchDTO, BigDecimal currOver, Integer runs, Boolean isExtra) {
+    public void updateScore(InningsDTO inningsDTO, MatchDTO matchDTO, BigDecimal currOver, Integer runs, Boolean isExtra) {
       Score updated = scoreRepository.findByInningsId(inningsDTO.getId())
                 .map(existingScore -> {
                     existingScore.setId(existingScore.getId());
@@ -38,15 +38,7 @@ public class ScoreService {
                     existingScore.setOvers(currOver);
                     return existingScore;
                 })
-                .orElseGet(() -> {
-                    Score score = new Score();
-                    score.setInnings(inningsMapper.toEntity(inningsDTO));
-                    score.setMatch(matchMapper.toEntity(matchDTO));
-                    score.setRuns(runs);
-                    score.setExtras(isExtra ? runs : 0);
-                    score.setOvers(currOver);
-                    return score;
-            });
+                .orElseThrow(() -> new RuntimeException("Score not found for innings id: " + inningsDTO.getId()));
         scoreRepository.save(updated);
     }
 

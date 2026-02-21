@@ -13,7 +13,7 @@ public interface MatchMapper {
     
     MatchDTO toDto(Match match);
     
-    Match toEntity(MatchDTO matchDTO);
+    //Match toEntity(MatchDTO matchDTO);
     
     List<MatchDTO> toDtoList(List<Match> matches);
     
