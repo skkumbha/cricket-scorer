@@ -12,13 +12,13 @@ import com.cricket.scorer.model.Team;
 import com.cricket.scorer.repository.InningsRepository;
 import com.cricket.scorer.repository.MatchPlayerRepository;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.stream.Collectors;
 
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -41,6 +41,8 @@ public class InningsService {
     private ScoreService scoreService;
     @Autowired
     private MatchPlayerRepository matchPlayerRepository;
+
+    public static Logger LOGGER = org.slf4j.LoggerFactory.getLogger(InningsService.class);
 
 
     public List<InningsDTO> getAllInnings() {
@@ -100,10 +102,20 @@ public class InningsService {
 
         Innings innings = new Innings(match, inningsNumber, batting, bowling);
         Innings savedInnings = inningsRepository.save(innings);
+        LOGGER.info("Created innings with id: " + savedInnings.getId() + " for match id: " + matchId);
+
+        updateMatchStatus(matchId, "INNINGS_" + inningsNumber, match);
         CompletableFuture.runAsync(() -> {
+            LOGGER.info("Starting score creation for innings id: " + savedInnings.getId() + " INNINGS " + inningsNumber + " in match id: " + matchId + " " + match.getMatchName());
             scoreService.createScore(savedInnings, match);
         });
         return inningsMapper.toDto(savedInnings);
+    }
+
+    private void updateMatchStatus(Long matchId, String status, Match match) {
+        match.setStatus(status);
+        matchService.updateMatch(matchId, matchMapper.toDto(match));
+        LOGGER.info("Updated match status to " + status + " for match id: " + matchId);
     }
 
     public InningsDTO updateInnings(Long id, Innings updates) {
@@ -117,6 +129,12 @@ public class InningsService {
         if (updates.getIsCompleted() != null) innings.setIsCompleted(updates.getIsCompleted());
 
         Innings savedInnings = inningsRepository.save(innings);
+        if (innings.getIsCompleted() != null && innings.getIsCompleted()) {
+            Match match = matchService.getMatchEntityById(savedInnings.getMatch().getId());
+            updateMatchStatus(match.getId(), "INNINGS_" + innings.getInningsNumber() + "_COMPLETED", match);
+            LOGGER.info("Innings id: " + id + " INNINGS_" + innings.getInningsNumber()
+                    + " marked as completed. Updated match status to COMPLETED for match id: " + match.getId() + " " + match.getMatchName());
+        }
         return inningsMapper.toDto(savedInnings);
     }
 
