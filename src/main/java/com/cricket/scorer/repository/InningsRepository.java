@@ -10,4 +10,5 @@ import java.util.List;
 public interface InningsRepository extends JpaRepository<Innings, Long> {
     List<Innings> findByMatchId(Long matchId);
     List<Innings> findByMatchIdOrderByInningsNumber(Long matchId);
+    Innings findByMatchIdAndInningsNumber(Long matchId, Integer inningsNumber);
 }

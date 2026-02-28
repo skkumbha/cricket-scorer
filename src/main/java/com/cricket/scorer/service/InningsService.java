@@ -15,6 +15,9 @@ import com.cricket.scorer.repository.MatchPlayerRepository;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -63,6 +66,10 @@ public class InningsService {
         return inningsRepository.findByMatchIdOrderByInningsNumber(matchId)
                 .stream().map(innings -> getInningsDTO(matchId, innings))
                 .collect(Collectors.toList());
+    }
+
+    public Innings getInningsByMatchIdAndInningsNumber(Long matchId, Integer inningsNumber) {
+        return inningsRepository.findByMatchIdAndInningsNumber(matchId, inningsNumber);
     }
 
     private InningsDTO getInningsDTO(Long matchId, Innings innings) {
@@ -119,20 +126,37 @@ public class InningsService {
     }
 
     public InningsDTO updateInnings(Long id, Innings updates) {
-        Innings innings = inningsRepository.findById(id)
+        Innings existingInnings = inningsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Innings not found with id: " + id));
 
-        if (updates.getTotalRuns() != null) innings.setTotalRuns(updates.getTotalRuns());
-        if (updates.getTotalWickets() != null) innings.setTotalWickets(updates.getTotalWickets());
-        if (updates.getTotalOvers() != null) innings.setTotalOvers(updates.getTotalOvers());
-        if (updates.getExtras() != null) innings.setExtras(updates.getExtras());
-        if (updates.getIsCompleted() != null) innings.setIsCompleted(updates.getIsCompleted());
-
-        Innings savedInnings = inningsRepository.save(innings);
-        if (innings.getIsCompleted() != null && innings.getIsCompleted()) {
+        if (updates.getTotalRuns() != null) existingInnings.setTotalRuns(updates.getTotalRuns());
+        if (updates.getTotalWickets() != null) existingInnings.setTotalWickets(updates.getTotalWickets());
+        if (updates.getTotalOvers() != null) existingInnings.setTotalOvers(updates.getTotalOvers());
+        if (updates.getExtras() != null) existingInnings.setExtras(updates.getExtras());
+        if(updates.getIsCompleted() != null) existingInnings.setIsCompleted(updates.getIsCompleted());
+        Map result = null;
+        if (existingInnings.getInningsNumber() != null && existingInnings.getInningsNumber() == 2) {
+            result = checkIfInningsCompleted(updates);
+            if (result != null) {
+                existingInnings.setIsCompleted(true);
+            }
+        }
+        Innings savedInnings = inningsRepository.save(existingInnings);
+        if (existingInnings.getIsCompleted() != null && existingInnings.getIsCompleted()) {
             Match match = matchService.getMatchEntityById(savedInnings.getMatch().getId());
-            updateMatchStatus(match.getId(), "INNINGS_" + innings.getInningsNumber() + "_COMPLETED", match);
-            LOGGER.info("Innings id: " + id + " INNINGS_" + innings.getInningsNumber()
+            //Match match = matchService.getMatchEntityById(existingInnings.getMatch().getId());
+            if (existingInnings.getInningsNumber() == 1) {
+                updateMatchStatus(match.getId(), "INNINGS_1_COMPLETED", match);
+                LOGGER.info("Innings id: " + id + " INNINGS_1 marked as completed. Updated match status to INNINGS_1_COMPLETED for match id: " + match.getId() + " " + match.getMatchName());
+                return inningsMapper.toDto(savedInnings);
+            } else if (existingInnings.getInningsNumber() == 2 && existingInnings.getIsCompleted()){
+                match.setStatus("COMPLETED");
+                match.setWinnerTeamId((Long) result.get("teamId"));
+                match.setResultType((String) result.get("resultType"));
+                updateMatchStatus(match.getId(), "COMPLETED", match);
+                LOGGER.info("Innings id: " + id + " INNINGS_2 marked as completed. Updated match status to COMPLETED for match id: " + match.getId() + " " + match.getMatchName());
+            }
+            LOGGER.info("Innings id: " + id + " INNINGS_" + existingInnings.getInningsNumber()
                     + " marked as completed. Updated match status to COMPLETED for match id: " + match.getId() + " " + match.getMatchName());
         }
         return inningsMapper.toDto(savedInnings);
@@ -146,6 +170,47 @@ public class InningsService {
 
     public Innings toEntity(InningsDTO inningsDTO) {
         return inningsMapper.toEntity(inningsDTO);
+    }
+
+    private Map checkIfInningsCompleted(Innings secondInnings) {
+        Map result = null;
+        if (secondInnings.getInningsNumber() == 2) {
+            Innings firstInnings = getInningsByMatchIdAndInningsNumber(secondInnings.getMatch().getId(), 1);
+            // Check if batting team won
+            if (secondInnings.getTotalRuns() != null && secondInnings.getTotalRuns() >= firstInnings.getTotalRuns()) {
+                result = new HashMap<>();
+                result.put("teamId", secondInnings.getBattingTeam().getId());
+                result.put("resultType", "WON");
+                return result;
+            }
+            // Check if Bowling Team won
+            if (secondInnings.getTotalWickets() != null && secondInnings.getTotalWickets() >= 10) {
+                result = new HashMap<>();
+                result.put("teamId", secondInnings.getBowlingTeam().getId());
+                result.put("resultType", "WON");
+                return result;
+            }
+
+            // Check If Overs are completed -- this condition checks the first innings over, change this to match overs
+            if (secondInnings.getTotalOvers() != null && firstInnings.getTotalOvers() != null && secondInnings.getTotalOvers().compareTo(firstInnings.getTotalOvers()) >= 0) {
+                if (secondInnings.getTotalRuns() != null && firstInnings.getTotalRuns() != null) {
+                    if (secondInnings.getTotalRuns() > firstInnings.getTotalRuns()) {
+                        result = new HashMap<>();
+                        result.put("teamId", secondInnings.getBattingTeam().getId());
+                        result.put("resultType", "WON");
+                    } else if (secondInnings.getTotalRuns() < firstInnings.getTotalRuns()) {
+                        result = new HashMap<>();
+                        result.put("teamId", secondInnings.getBowlingTeam().getId());
+                        result.put("resultType", "WON");
+                    } else {
+                        result = new HashMap<>();
+                        result.put("teamId", null);
+                        result.put("resultType", "DRAW");
+                    }
+                }
+            }
+        }
+        return result;
     }
 }
 

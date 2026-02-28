@@ -15,6 +15,7 @@ public class Ball {
     @JoinColumn(name = "over_id", nullable = false)
     private Over over;
 
+    @Deprecated(since = "Use Over reference to get Innings instead")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "innings_id", nullable = false)
     private Innings innings;

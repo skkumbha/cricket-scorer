@@ -68,6 +68,10 @@ public class MatchService {
         return matchMapper.toDto(savedMatch);
     }
 
+    public Match updateMatch(Match match) {
+        return matchRepository.save(match);
+    }
+
     public MatchDTO updateMatch(Long id, MatchDTO matchDTO) {
         Match match = matchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Match not found with id: " + id));
