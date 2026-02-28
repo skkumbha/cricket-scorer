@@ -19,13 +19,13 @@ if ! command -v docker >/dev/null 2>&1; then
 fi
 
 # Optional: fail fast if base images are missing (helps offline use)
-REQUIRED_IMAGES=("maven:3.9.6-eclipse-temurin-17" "eclipse-temurin:17-jre")
-for img in "${REQUIRED_IMAGES[@]}"; do
-  if ! docker image inspect "$img" >/dev/null 2>&1; then
-    echo "ERROR: Required base image '$img' not found locally. Pull it before going offline." >&2
-    exit 1
-  fi
-done
+#REQUIRED_IMAGES=("maven:3.9.6-eclipse-temurin-17" "eclipse-temurin:17-jre")
+#for img in "${REQUIRED_IMAGES[@]}"; do
+#  if ! docker image inspect "$img" >/dev/null 2>&1; then
+#    echo "ERROR: Required base image '$img' not found locally. Pull it before going offline." >&2
+#    exit 1
+#  fi
+#done
 
 # Build the image from the Dockerfile at project root
 

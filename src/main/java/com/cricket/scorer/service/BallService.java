@@ -3,17 +3,18 @@ package com.cricket.scorer.service;
 import com.cricket.scorer.dto.BallDTO;
 import com.cricket.scorer.dto.InningsDTO;
 import com.cricket.scorer.mapper.BallMapper;
-import com.cricket.scorer.model.Ball;
-import com.cricket.scorer.model.Innings;
-import com.cricket.scorer.model.Over;
-import com.cricket.scorer.model.Player;
+import com.cricket.scorer.model.*;
 import com.cricket.scorer.repository.BallRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import static com.cricket.scorer.service.InningsService.LOGGER;
 
 @Service
 public class BallService {
@@ -34,6 +35,8 @@ public class BallService {
     private ScoreService scoreService;
     @Autowired
     private PlayerScoreService playerScoreService;
+    @Autowired
+    private MatchService matchService;
 
 
 
@@ -59,59 +62,45 @@ public class BallService {
                            String wicketType, Long fielderId, Boolean isBoundary, Boolean isSix) {
         BigDecimal oversDecimal = null;
 
-        Over over = overService.getOverById(overId)
-                .map(overService::toEntity).get();
-        InningsDTO inningsDTO = inningsService.getInningsById(inningsId);
-        Innings innings = inningsService.toEntity(inningsDTO);
+        Over over = overService.getOverEntityById(overId).get();
+        //InningsDTO inningsDTO = inningsService.getInningsById(inningsId);
+        Innings innings = inningsService.getEntityById(inningsId);
 
         // Ensure the over belongs to the innings
         if (!over.getInnings().getId().equals(innings.getId())) {
             throw new RuntimeException("Over " + overId + " does not belong to Innings " + inningsId);
         }
 
-        Player batsman = playerService.getPlayerById(batsmanId)
-                .map(playerService::toEntity).get();
-        Player bowler = playerService.getPlayerById(bowlerId)
-                .map(playerService::toEntity).get();
+        Player batsman = playerService.getPlayerEntityById(batsmanId).get();
+        Player bowler = playerService.getPlayerEntityById(bowlerId).get();
         Player fielder = null;
         if (fielderId != null) {
-            fielder = playerService.getPlayerById(fielderId)
-                    .map(playerService::toEntity).get();
+            fielder = playerService.getPlayerEntityById(fielderId).get();
         }
 
-        Ball saved = saveNewBall(ballNumber, runsScored, extras, extraType, isWicket, wicketType, isBoundary, isSix, over, innings, batsman, bowler, fielder);
+        Ball thisBall = saveNewBall(ballNumber, runsScored, extras, extraType, isWicket, wicketType, isBoundary, isSix, over, innings, batsman, bowler, fielder);
 
         // Update aggregates on Over and Innings
-        int runsThisBall = (saved.getRunsScored() == null ? 0 : saved.getRunsScored());
-        int extrasThisBall = (saved.getExtras() == null ? 0 : saved.getExtras());
-        int totalThisBall = runsThisBall + extrasThisBall;
+        int runsThisBall = (thisBall.getRunsScored() == null ? 0 : thisBall.getRunsScored());
+        int extrasThisBall = (thisBall.getExtras() == null ? 0 : thisBall.getExtras());
+        int totalRunsThisBall = runsThisBall + extrasThisBall;
 
         // Update over
-        Integer overRuns = over.getRunsConceded();
-        over.setRunsConceded((overRuns == null ? 0 : overRuns) + totalThisBall);
-        if (saved.getIsWicket() != null && saved.getIsWicket()) {
-            Integer wk = over.getWicketsTaken();
-            over.setWicketsTaken((wk == null ? 0 : wk) + 1);
-        }
-        // If this is the last ball in the over, set maiden flag appropriately
-        if (saved.getBallNumber() != null && saved.getBallNumber().intValue() == BALLS_PER_OVER) {
-            over.setMaiden(over.getRunsConceded() == 0);
-        }
-        overService.updateOver(overId, over);
+        updateOverWithThisBall(overId, over, totalRunsThisBall, thisBall);
 
         // Update innings
         Integer inningsRuns = innings.getTotalRuns();
-        innings.setTotalRuns((inningsRuns == null ? 0 : inningsRuns) + totalThisBall);
+        innings.setTotalRuns((inningsRuns == null ? 0 : inningsRuns) + totalRunsThisBall);
         Integer inningsExtras = innings.getExtras();
         innings.setExtras((inningsExtras == null ? 0 : inningsExtras) + extrasThisBall);
-        if (saved.getIsWicket() != null && saved.getIsWicket()) {
+        if (thisBall.getIsWicket() != null && thisBall.getIsWicket()) {
             Integer tw = innings.getTotalWickets();
             innings.setTotalWickets((tw == null ? 0 : tw) + 1);
         }
         // Calculate overs as X.Y where X = overNumber -1, Y = ballNumber (assume 6-ball overs)
-        if (saved.getBallNumber() != null && over.getOverNumber() != null) {
+        if (thisBall.getBallNumber() != null && over.getOverNumber() != null) {
             int fullOvers = over.getOverNumber() - 1;
-            int ballsInCurrentOver = saved.getBallNumber();
+            int ballsInCurrentOver = thisBall.getBallNumber();
             // Represent overs as e.g., 10.4 => 10 overs and 4 balls
             oversDecimal = BigDecimal.valueOf(fullOvers).add(BigDecimal.valueOf(ballsInCurrentOver).movePointLeft(1));
             if (extraType != null && (extraType.equalsIgnoreCase("wide") || extraType.equalsIgnoreCase("no_ball"))) {
@@ -124,11 +113,29 @@ public class BallService {
             }
             innings.setTotalOvers(oversDecimal);
         }
-        InningsDTO updatedInnings = inningsService.updateInnings(inningsId,innings);
-        scoreService.updateScore(updatedInnings, updatedInnings.getMatchDTO(), oversDecimal, totalThisBall, extrasThisBall > 0);
-        playerScoreService.updatePlayerScore(ballMapper.toDto(saved));
+        InningsDTO updatedInnings = inningsService.updateInnings(inningsId, innings);
 
-        return ballMapper.toDto(saved);
+        scoreService.updateScore(updatedInnings, updatedInnings.getMatchDTO(), oversDecimal, totalRunsThisBall, extrasThisBall > 0);
+        playerScoreService.updatePlayerScore(ballMapper.toDto(thisBall));
+
+        return ballMapper.toDto(thisBall);
+    }
+
+
+
+    private void updateOverWithThisBall(Long overId, Over over, int totalThisBall, Ball thisBall) {
+        Integer runsInThisOver = over.getRunsConceded();
+        over.setRunsConceded((runsInThisOver == null ? 0 : runsInThisOver) + totalThisBall);
+
+        if (thisBall.getIsWicket() != null && thisBall.getIsWicket()) {
+            Integer wk = over.getWicketsTaken();
+            over.setWicketsTaken((wk == null ? 0 : wk) + 1);
+        }
+        // If this is the last ball in the over, set maiden flag appropriately
+        if (thisBall.getBallNumber() != null && thisBall.getBallNumber().intValue() == BALLS_PER_OVER) {
+            over.setMaiden(over.getRunsConceded() == 0);
+        }
+        overService.updateOver(overId, over);
     }
 
     private Ball saveNewBall(Integer ballNumber, Integer runsScored, Integer extras, String extraType, Boolean isWicket, String wicketType, Boolean isBoundary, Boolean isSix, Over over, Innings innings, Player batsman, Player bowler, Player fielder) {

@@ -37,6 +37,10 @@ public class OverService {
         return overRepository.findById(id).map(overMapper::toDto);
     }
 
+    public Optional<Over> getOverEntityById(Long id) {
+        return overRepository.findById(id);
+    }
+
     public List<OverDTO> getOversByInningsId(Long inningsId) {
         return overMapper.toDtoList(overRepository.findByInningsIdOrderByOverNumber(inningsId));
     }
