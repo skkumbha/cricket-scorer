@@ -43,6 +43,10 @@ public class MatchService {
         return matchMapper.toDtoList(matchRepository.findAll());
     }
 
+    public List<MatchDTO> getAllMatches(Integer count) {
+        return matchMapper.toDtoList(matchRepository.findAllByOrderByCreatedAtDesc().stream().limit(count).collect(Collectors.toList()));
+    }
+
     public Optional<MatchDTO> getMatchById(Long id) {
         Optional<Match> mactch = matchRepository.findById(id);
         MatchDTO matchDTO = matchMapper.toDto(mactch.get());

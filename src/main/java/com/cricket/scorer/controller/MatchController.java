@@ -18,10 +18,16 @@ public class MatchController {
     private MatchService matchService;
 
     @GetMapping
-    public ResponseEntity<List<MatchDTO>> getAllMatches() {
-        List<MatchDTO> matches = matchService.getAllMatches();
+    public ResponseEntity<List<MatchDTO>> getAllMatches(@RequestParam("count") Integer count) {
+        List<MatchDTO> matches = matchService.getAllMatches(count);
         return ResponseEntity.ok(matches);
     }
+
+//    @GetMapping
+//    public ResponseEntity<List<MatchDTO>> getAllMatches() {
+//        List<MatchDTO> matches = matchService.getAllMatches();
+//        return ResponseEntity.ok(matches);
+//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<MatchDTO> getMatchById(@PathVariable Long id) {
