@@ -66,11 +66,6 @@ public class BallService {
         //InningsDTO inningsDTO = inningsService.getInningsById(inningsId);
         Innings innings = inningsService.getEntityById(inningsId);
 
-        // Ensure the over belongs to the innings
-        if (!over.getInnings().getId().equals(innings.getId())) {
-            throw new RuntimeException("Over " + overId + " does not belong to Innings " + inningsId);
-        }
-
         Player batsman = playerService.getPlayerEntityById(batsmanId).get();
         Player bowler = playerService.getPlayerEntityById(bowlerId).get();
         Player fielder = null;
@@ -83,14 +78,13 @@ public class BallService {
         // Update aggregates on Over and Innings
         int runsThisBall = (thisBall.getRunsScored() == null ? 0 : thisBall.getRunsScored());
         int extrasThisBall = (thisBall.getExtras() == null ? 0 : thisBall.getExtras());
-        int totalRunsThisBall = runsThisBall + extrasThisBall;
+        int totalRunsWithExtras = runsThisBall + extrasThisBall;
 
         // Update over
-        updateOverWithThisBall(overId, over, totalRunsThisBall, thisBall);
 
         // Update innings
         Integer inningsRuns = innings.getTotalRuns();
-        innings.setTotalRuns((inningsRuns == null ? 0 : inningsRuns) + totalRunsThisBall);
+        innings.setTotalRuns((inningsRuns == null ? 0 : inningsRuns) + totalRunsWithExtras);
         Integer inningsExtras = innings.getExtras();
         innings.setExtras((inningsExtras == null ? 0 : inningsExtras) + extrasThisBall);
         if (thisBall.getIsWicket() != null && thisBall.getIsWicket()) {
@@ -98,32 +92,40 @@ public class BallService {
             innings.setTotalWickets((tw == null ? 0 : tw) + 1);
         }
         // Calculate overs as X.Y where X = overNumber -1, Y = ballNumber (assume 6-ball overs)
-        if (thisBall.getBallNumber() != null && over.getOverNumber() != null) {
-            int fullOvers = over.getOverNumber() - 1;
-            int ballsInCurrentOver = thisBall.getBallNumber();
-            // Represent overs as e.g., 10.4 => 10 overs and 4 balls
-            oversDecimal = BigDecimal.valueOf(fullOvers).add(BigDecimal.valueOf(ballsInCurrentOver).movePointLeft(1));
-            if (extraType != null && (extraType.equalsIgnoreCase("wide") || extraType.equalsIgnoreCase("no_ball"))) {
-                // For wides and no-balls, the ball doesn't count towards over progression
-                oversDecimal = oversDecimal.subtract(BigDecimal.valueOf(0.1)); // Subtract 0.1 to negate the ball count
+        int currentOver = over.getOverNumber() - 1;
+        int ballsInCurrentOver = thisBall.getBallNumber();
+        boolean overCompleted = false;
+        if (!isExtraBall(extraType)) {
+            oversDecimal = BigDecimal.valueOf(currentOver).add(BigDecimal.valueOf(ballsInCurrentOver).movePointLeft(1));
+            if (overComplete(oversDecimal)) {
+                    // If we exceed 6 balls, roll over to next over
+                    oversDecimal = BigDecimal.valueOf(currentOver + 1); // Move to next full over
+                    innings.setTotalOvers(oversDecimal);
+                    overCompleted = true;
+                }
             }
-            if (oversDecimal.movePointRight(1).intValue()%10 >= 6) {
-                // If we exceed 6 balls, roll over to next over
-                oversDecimal = BigDecimal.valueOf(over.getOverNumber()); // Move to next full over
-            }
-            innings.setTotalOvers(oversDecimal);
-        }
+
         InningsDTO updatedInnings = inningsService.updateInnings(inningsId, innings);
 
-        scoreService.updateScore(updatedInnings, updatedInnings.getMatchDTO(), oversDecimal, totalRunsThisBall, extrasThisBall > 0);
+        updateOverWithThisBall(overId, over, totalRunsWithExtras, thisBall, overCompleted);
+
+        scoreService.updateScore(updatedInnings, oversDecimal, totalRunsWithExtras, extrasThisBall);
         playerScoreService.updatePlayerScore(ballMapper.toDto(thisBall));
 
         return ballMapper.toDto(thisBall);
     }
 
+    private static boolean overComplete(BigDecimal oversDecimal) {
+        return oversDecimal.movePointRight(1).intValue() % 10 >= 6;
+    }
+
+    private static boolean isExtraBall(String extraType) {
+        return extraType != null
+                && (extraType.equalsIgnoreCase("wide") || extraType.equalsIgnoreCase("no_ball"));
+    }
 
 
-    private void updateOverWithThisBall(Long overId, Over over, int totalThisBall, Ball thisBall) {
+    private void updateOverWithThisBall(Long overId, Over over, int totalThisBall, Ball thisBall, boolean overCompleted) {
         Integer runsInThisOver = over.getRunsConceded();
         over.setRunsConceded((runsInThisOver == null ? 0 : runsInThisOver) + totalThisBall);
 
@@ -135,6 +137,7 @@ public class BallService {
         if (thisBall.getBallNumber() != null && thisBall.getBallNumber().intValue() == BALLS_PER_OVER) {
             over.setMaiden(over.getRunsConceded() == 0);
         }
+        over.setOverCompleted(overCompleted);
         overService.updateOver(overId, over);
     }
 

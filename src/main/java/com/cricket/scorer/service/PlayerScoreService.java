@@ -29,25 +29,23 @@ public class PlayerScoreService {
         Long inningsId = ballDTO.getInningsId();
 
         //update batsman score
-
-        if (!isExtra(ballDTO)) {
-            PlayerScore batsmanScore = playerScoreRepository.findByPlayerIdAndInningsId(batsmanId, inningsId);
+        PlayerScore batsmanScore = playerScoreRepository.findByPlayerIdAndInningsId(batsmanId, inningsId);
             if (batsmanScore == null) {
                 batsmanScore = new PlayerScore();
                 batsmanScore.setPlayer(playerService.getPlayerEntityById(batsmanId).orElseThrow(() -> new RuntimeException("Player not found with id: " + batsmanId)));
                 batsmanScore.setInnings(inningsService.getEntityById(inningsId));
                 batsmanScore.setRunsScored(ballDTO.getRunsScored());
-                batsmanScore.setBalls(1);
+                batsmanScore.setBalls(aWideOrANoBall(ballDTO) ? 0 : 1);
                 batsmanScore.setFours(ballDTO.getRunsScored() == 4 ? 1 : 0);
                 batsmanScore.setSixes(ballDTO.getRunsScored() == 6 ? 1 : 0);
             } else {
                 batsmanScore.setRunsScored(batsmanScore.getRunsScored() + ballDTO.getRunsScored());
-                batsmanScore.setBalls(batsmanScore.getBalls() + 1);
+                batsmanScore.setBalls(batsmanScore.getBalls() + (aWideOrANoBall(ballDTO) ? 0 : 1));
                 batsmanScore.setFours(batsmanScore.getFours() + (ballDTO.getRunsScored() == 4 ? 1 : 0));
                 batsmanScore.setSixes(batsmanScore.getSixes() + (ballDTO.getRunsScored() == 6 ? 1 : 0));
             }
-            playerScoreRepository.save(batsmanScore);
-        }
+        playerScoreRepository.save(batsmanScore);
+
 
         //update bowler score
         PlayerScore bowlerScore = playerScoreRepository.findByPlayerIdAndInningsId(bowlerId, inningsId);
@@ -56,11 +54,11 @@ public class PlayerScoreService {
             bowlerScore.setPlayer(playerService.getPlayerEntityById(bowlerId).orElseThrow(() -> new RuntimeException("Player not found with id: " + bowlerId)));
             bowlerScore.setInnings(inningsService.getEntityById(inningsId));
             bowlerScore.setRunsGiven(ballDTO.getRunsScored() + (ballDTO.getExtras() != null ? ballDTO.getExtras() : 0));
-            bowlerScore.setBalls(isExtra(ballDTO) ? 0 : 1);
+            bowlerScore.setBalls(aWideOrANoBall(ballDTO) ? 0 : 1);
             bowlerScore.setWicketsTaken(ballDTO.getIsWicket() ? 1 : 0);
         } else {
             bowlerScore.setRunsGiven(bowlerScore.getRunsGiven() + ballDTO.getRunsScored() + (ballDTO.getExtras() != null ? ballDTO.getExtras() : 0));
-            bowlerScore.setBalls(bowlerScore.getBalls() + (isExtra(ballDTO) ? 0 : 1));
+            bowlerScore.setBalls(bowlerScore.getBalls() + (aWideOrANoBall(ballDTO) ? 0 : 1));
             bowlerScore.setWicketsTaken(bowlerScore.getWicketsTaken() + (ballDTO.getIsWicket() ? 1 : 0));
         }
         playerScoreRepository.save(bowlerScore);
@@ -84,7 +82,7 @@ public class PlayerScoreService {
         return playerScoreDTO;
     }
 
-    private boolean isExtra(BallDTO ballDTO) {
+    private boolean aWideOrANoBall(BallDTO ballDTO) {
         return "WIDE".equalsIgnoreCase(ballDTO.getExtraType()) || "NO_BALL".equalsIgnoreCase(ballDTO.getExtraType());
     }
 

@@ -12,6 +12,7 @@ public class OverDTO {
     private Integer wicketsTaken;
     private Boolean maiden;
     private LocalDateTime createdAt;
+    private Boolean overCompleted;
     
     // Constructors
     public OverDTO() {
@@ -80,5 +81,13 @@ public class OverDTO {
     
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Boolean getOverCompleted() {
+        return overCompleted;
+    }
+
+    public void setOverCompleted(Boolean overCompleted) {
+        this.overCompleted = overCompleted;
     }
 }

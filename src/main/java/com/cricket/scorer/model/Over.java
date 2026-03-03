@@ -20,6 +20,9 @@ public class Over {
     @Column(name = "over_number", nullable = false)
     private Integer overNumber;
 
+    @Column(name = "over_completed", nullable = false)
+    private Boolean overCompleted = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bowler_id", nullable = false)
     private Player bowler;
@@ -128,6 +131,14 @@ public class Over {
 
     public void setBalls(Set<Ball> balls) {
         this.balls = balls;
+    }
+
+    public Boolean getOverCompleted() {
+        return overCompleted;
+    }
+
+    public void setOverCompleted(Boolean overCompleted) {
+        this.overCompleted = overCompleted;
     }
 
 }
