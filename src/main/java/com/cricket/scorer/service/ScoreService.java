@@ -29,12 +29,12 @@ public class ScoreService {
     TeamMapper teamMapper;
 
     @Transactional
-    public void updateScore(InningsDTO inningsDTO, MatchDTO matchDTO, BigDecimal currOver, Integer runs, Boolean isExtra) {
+    public void updateScore(InningsDTO inningsDTO, BigDecimal currOver, Integer totalRuns, Integer extras) {
       Score updated = scoreRepository.findByInningsId(inningsDTO.getId())
                 .map(existingScore -> {
                     existingScore.setId(existingScore.getId());
-                    existingScore.setRuns(existingScore.getRuns() + runs);
-                    existingScore.setExtras(existingScore.getExtras() + (isExtra ? runs : 0));
+                    existingScore.setRuns(existingScore.getRuns() + totalRuns);
+                    existingScore.setExtras(existingScore.getExtras() + (extras > 0 ? extras : 0));
                     existingScore.setOvers(currOver);
                     return existingScore;
                 })
