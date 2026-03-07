@@ -1,0 +1,39 @@
+version: '1.0'
+
+services:
+  # PostgreSQL Database
+    cricket-db-service:
+        image: postgres:15
+        container_name: cricket-db-container
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: ${DB_USER}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_NAME}
+        volumes:
+            - ${DATA_DIR}:/var/lib/postgresql/data
+        ports:
+            - "${DB_PORT:-5432}:5432"
+        networks:
+            - cricket-network
+  # Cricket Score Backend
+    cricket-scoring-app:
+        image: sreeramkumbham/cricket-score-app:latest
+        container_name: cricket-scoring-app
+        restart: unless-stopped
+        environment:
+            SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+            DB_HOST: cricket-db-service
+            DB_PORT: 5432d
+            DB_NAME: ${DB_NAME}
+            DB_USER: ${DB_USER}
+            DB_PASSWORD: ${DB_PASSWORD}
+        ports:
+            - "${BACKEND_PORT:-8080}:8080"
+        depends_on:
+            - cricket-db-service
+        networks:
+            - cricket-network
+networks:
+  cricket-network:
+    driver: bridge
