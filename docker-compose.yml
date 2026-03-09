@@ -24,7 +24,7 @@ services:
         environment:
             SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
             DB_HOST: cricket-db-service
-            DB_PORT: 5432d
+            DB_PORT: 5432
             DB_NAME: ${DB_NAME}
             DB_USER: ${DB_USER}
             DB_PASSWORD: ${DB_PASSWORD}

@@ -97,6 +97,7 @@ public class BallService {
         boolean overCompleted = false;
         if (!isExtraBall(extraType)) {
             oversDecimal = BigDecimal.valueOf(currentOver).add(BigDecimal.valueOf(ballsInCurrentOver).movePointLeft(1));
+            innings.setTotalOvers(oversDecimal);
             if (overComplete(oversDecimal)) {
                     // If we exceed 6 balls, roll over to next over
                     oversDecimal = BigDecimal.valueOf(currentOver + 1); // Move to next full over

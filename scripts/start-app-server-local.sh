@@ -24,6 +24,7 @@ docker build -t $IMAGE_NAME -f "$DOCKERFILE" "$PROJECT_DIR"
 
 # run container
 docker run \
+  -e SPRING_PROFILES_ACTIVE=dev \
   --name $CONTAINER_NAME \
   --network $DOCKER_NETWORK \
   -p 8080:8080 \
